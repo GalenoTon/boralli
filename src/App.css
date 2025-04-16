@@ -1,0 +1,72 @@
+/* App.css */
+
+/* Importa as camadas base, components e utilities do Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos Globais */
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background-color: #f3f4f6; /* Tailwind gray-100 */
+  color: #374151; /* Tailwind gray-700 */
+}
+
+/* Container Global Personalizado */
+.container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Header */
+.header {
+  @apply bg-white shadow p-4;
+}
+
+/* Footer */
+.footer {
+  @apply bg-white shadow p-4 text-center text-sm;
+}
+
+/* Botões genéricos */
+.btn {
+  @apply px-4 py-2 rounded transition;
+}
+
+.btn-primary {
+  @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.btn-secondary {
+  @apply bg-gray-300 text-gray-800 hover:bg-gray-400;
+}
+
+/* Estilos para Modais */
+.modal-overlay {
+  @apply fixed inset-0 bg-black opacity-50;
+}
+
+.modal-container {
+  @apply fixed inset-0 flex items-center justify-center z-50;
+}
+
+.modal-content {
+  @apply bg-white rounded-lg shadow-lg p-6 w-full max-w-lg;
+}
+
+/* Toast para feedback de ações */
+.toast {
+  @apply fixed bottom-4 right-4 bg-green-500 text-white py-2 px-4 rounded shadow;
+}
+
+/* Adicione estilos personalizados adicionais conforme necessário */
