@@ -1,99 +1,173 @@
 // src/components/Header.tsx
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-// Substitua as importações dos ícones por:
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { 
-  FiHome,      // Home
-  FiMapPin,    // Estabelecimentos
-  FiBox,       // Produtos
-  FiPercent,   // Promoções
-  FiHeart,     // Favoritos
-  FiShoppingBag, // Dashboard
-  FiUser,      // Registro
-  FiLogIn,     // Login
-  FiMenu,      // Menu Mobile
-  FiX          // Fechar Menu
-} from 'react-icons/fi';
+  Home,
+  MapPin,
+  Package,
+  Percent,
+  Heart,
+  ShoppingBag,
+  User,
+  LogIn,
+  Menu,
+  X,
+  Star
+} from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navLinks = [
-    { to: "/", label: "Home", icon: <FiHome /> },
-    { to: "/estabelecimentos", label: "Estabelecimentos", icon: <FiMapPin /> },
-    { to: "/produtos", label: "Produtos", icon: <FiBox /> },
-    { to: "/promocoes", label: "Promoções", icon: <FiPercent /> },
-    { to: "/favoritos", label: "Favoritos", icon: <FiHeart /> },
-    { to: "/dashboard/estabelecimentos", label: "Dashboard", icon: <FiShoppingBag /> },
-    { to: "/login", label: "Login", icon: <FiLogIn /> },
-    { to: "/register", label: "Registro", icon: <FiUser /> },
+    { to: "/", label: "Home", icon: <Home size={20} /> },
+    { to: "/estabelecimentos", label: "Estabelecimentos", icon: <MapPin size={20} /> },
+    { to: "/produtos", label: "Produtos", icon: <Package size={20} /> },
+    { to: "/promocoes", label: "Promoções", icon: <Percent size={20} /> },
+    { to: "/favoritos", label: "Favoritos", icon: <Heart size={20} /> },
+    { to: "/dashboard/estabelecimentos", label: "Dashboard", icon: <ShoppingBag size={20} /> },
+  ];
+
+  const authLinks = [
+    { to: "/login", label: "Login", icon: <LogIn size={20} /> },
+    { to: "/register", label: "Registro", icon: <User size={20} /> },
   ];
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className={`sticky top-0 z-50 transition-all duration-300 ${
+      isScrolled 
+        ? 'bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm' 
+        : 'bg-white/80 backdrop-blur-sm border-b border-transparent'
+    }`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link 
             to="/" 
-            className="text-2xl font-bold bg-gradient-to-r from-primary-500 to-amber-600 bg-clip-text text-transparent"
+            className="flex items-center gap-2 group"
           >
-            Boralli
+            <div className="relative">
+              <div className="absolute -inset-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur opacity-0 group-hover:opacity-30 transition-opacity" />
+              <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent relative">
+                Boralli
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            {navLinks.slice(0, 5).map((link) => ( // Mostra apenas os principais links no desktop
-              <Link
-                key={link.to}
-                to={link.to}
-                className="flex items-center space-x-2 text-gray-600 hover:text-primary-600 transition-colors relative group"
-              >
-                {link.icon}
-                <span className="font-medium">{link.label}</span>
-                <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-500 transition-all group-hover:w-full" />
-              </Link>
-            ))}
-            <div className="h-6 w-px bg-gray-200 mx-2" /> {/* Separador */}
-            {navLinks.slice(5).map((link) => ( // Links de autenticação
-              <Link
-                key={link.to}
-                to={link.to}
-                className="flex items-center space-x-2 text-gray-600 hover:text-primary-600 transition-colors relative group"
-              >
-                {link.icon}
-                <span className="font-medium">{link.label}</span>
-                <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-500 transition-all group-hover:w-full" />
-              </Link>
-            ))}
+          <nav className="hidden md:flex items-center gap-8">
+            <div className="flex items-center gap-6">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className={`relative group flex items-center gap-2 px-3 py-2 rounded-xl transition-all ${
+                    location.pathname === link.to
+                      ? 'bg-purple-50 text-purple-600'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
+                >
+                  {link.icon}
+                  <span className="font-medium">{link.label}</span>
+                  {location.pathname === link.to && (
+                    <div className="absolute -bottom-3 left-1/2 w-4 h-1 bg-purple-600 rounded-full -translate-x-1/2" />
+                  )}
+                </Link>
+              ))}
+            </div>
+
+            <div className="h-8 w-px bg-gradient-to-b from-transparent via-gray-200 to-transparent mx-2" />
+
+            <div className="flex items-center gap-4">
+              {authLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 hover:border-purple-200 hover:bg-purple-50 transition-all text-gray-700 hover:text-purple-700"
+                >
+                  {link.icon}
+                  <span className="font-medium">{link.label}</span>
+                </Link>
+              ))}
+            </div>
           </nav>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-gray-600 hover:text-primary-500 transition-colors"
+            className={`md:hidden p-2.5 rounded-xl transition-all ${
+              isMenuOpen 
+                ? 'bg-purple-100 text-purple-600' 
+                : 'hover:bg-gray-100 text-gray-600'
+            }`}
             aria-label="Toggle menu"
           >
-            {isMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
         {/* Mobile Menu */}
-        <div className={`md:hidden absolute top-16 left-0 right-0 bg-white shadow-lg overflow-hidden transition-all duration-300 ${
-          isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        <div className={`md:hidden fixed inset-0 bg-white/95 backdrop-blur-lg z-40 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+          isMenuOpen 
+            ? 'opacity-100 translate-y-0' 
+            : 'opacity-0 -translate-y-full'
         }`}>
-          <div className="px-4 pt-2 pb-6 space-y-4">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
+          <div className="container mx-auto px-4 h-full flex flex-col">
+            <div className="flex justify-end pt-6 pb-4">
+              <button
                 onClick={() => setIsMenuOpen(false)}
-                className="flex items-center space-x-3 p-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                className="p-2 rounded-lg hover:bg-gray-100"
               >
-                {link.icon}
-                <span className="font-medium">{link.label}</span>
-              </Link>
-            ))}
+                <X size={24} className="text-gray-700" />
+              </button>
+            </div>
+
+            <nav className="flex-1 flex flex-col gap-2 overflow-y-auto pb-8">
+              <div className="space-y-1">
+                <h3 className="px-4 py-2 text-sm font-medium text-gray-500">Navegação</h3>
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                      location.pathname === link.to
+                        ? 'bg-purple-50 text-purple-600'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    {link.icon}
+                    <span className="font-medium">{link.label}</span>
+                  </Link>
+                ))}
+              </div>
+
+              <div className="border-t border-gray-100 my-4" />
+
+              <div className="space-y-1">
+                <h3 className="px-4 py-2 text-sm font-medium text-gray-500">Conta</h3>
+                {authLinks.map((link) => (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors"
+                  >
+                    {link.icon}
+                    <span className="font-medium">{link.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </nav>
           </div>
         </div>
       </div>

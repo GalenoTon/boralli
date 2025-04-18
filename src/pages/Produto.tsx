@@ -1,13 +1,14 @@
 // src/pages/Produto.tsx
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { mockProdutos, Produto as ProdutoType } from '../mocks/produtos';
-import { mockEstabelecimentos, Estabelecimento as EstabelecimentoType } from '../mocks/estabelecimentos';
-import { FiArrowLeft, FiShoppingCart, FiHeart, FiStar, FiMapPin, FiClock, FiTag , FiArrowRight} from 'react-icons/fi';
+import { mockProdutos } from '../mocks/produtos';
+import { mockEstabelecimentos } from '../mocks/estabelecimentos';
+import { FiArrowLeft, FiShoppingCart, FiHeart, FiStar, FiMapPin, FiClock, FiTag, FiArrowRight } from 'react-icons/fi';
+import { Produto } from '../types/Produto';
 
 const ProdutoPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const produto = mockProdutos.find((p: ProdutoType) => p.id === id);
+  const produto = mockProdutos.find((p: Produto) => p.id === id);
 
   if (!produto) {
     return (
@@ -29,7 +30,7 @@ const ProdutoPage: React.FC = () => {
   }
 
   const estabelecimento = mockEstabelecimentos.find(
-    (est: EstabelecimentoType) => est.id === produto.estabelecimentoId
+    (est) => est.id === produto.estabelecimentoId
   );
 
   const hasDiscount = produto.precoOriginal && produto.desconto;

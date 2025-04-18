@@ -1,11 +1,11 @@
 // src/pages/dashboard/DashboardPromocoes.tsx
 import React, { useState } from 'react';
-import { FiEdit, FiTrash2, FiPlus, FiX, FiSave, FiTag, FiClock } from 'react-icons/fi';
+import { Tag, Clock, Plus, X, Save, Edit, Trash2, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mockPromocoes } from '../../mocks/promocoes';
-import { mockProdutos } from '../../mocks/produtos';
+import { mockEstabelecimentos } from '../../mocks/estabelecimentos';
 
-export type Promocao = {
+type Promocao = {
   id: string;
   nome: string;
   descricao: string;
@@ -36,11 +36,9 @@ const FormInput = ({ label, value, onChange, error, type = 'text', required = fa
       type={type}
       value={value}
       onChange={onChange}
-      className={`border ${error ? 'border-red-500' : 'border-gray-300'} rounded-lg p-3 focus:ring-2 ${
-        error ? 'focus:ring-red-300' : 'focus:ring-blue-300'
-      } transition-shadow`}
+      className={`border ${error ? 'border-red-500' : 'border-gray-200'} rounded-xl p-3 focus:ring-2 focus:ring-purple-300 transition-all shadow-sm`}
     />
-    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+    {error && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><X size={14} /> {error}</p>}
   </div>
 );
 
@@ -62,25 +60,22 @@ const FormSelect = ({ label, value, onChange, options, error, required = false }
     <select
       value={value}
       onChange={onChange}
-      className={`border ${error ? 'border-red-500' : 'border-gray-300'} rounded-lg p-3 focus:ring-2 ${
-        error ? 'focus:ring-red-300' : 'focus:ring-blue-300'
-      } transition-shadow`}
+      className={`border ${error ? 'border-red-500' : 'border-gray-200'} rounded-xl p-3 focus:ring-2 focus:ring-purple-300 transition-all shadow-sm`}
     >
       <option value="">Selecione...</option>
       {options.map(option => (
         <option key={option.id} value={option.id}>{option.nome}</option>
       ))}
     </select>
-    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+    {error && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><X size={14} /> {error}</p>}
   </div>
 );
 
-export default function DashboardPromocoes() {
+const DashboardPromocoes: React.FC = () => {
   const [promocoes, setPromocoes] = useState<Promocao[]>(mockPromocoes);
+  const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState<Partial<Promocao>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
 
   const validarFormulario = () => {
     const novosErros: Record<string, string> = {};
@@ -89,99 +84,79 @@ export default function DashboardPromocoes() {
     if (!formData.desconto || formData.desconto <= 0) novosErros.desconto = 'Desconto deve ser maior que zero';
     if (!formData.dataInicio) novosErros.dataInicio = 'Data de início é obrigatória';
     if (!formData.dataFim) novosErros.dataFim = 'Data de fim é obrigatória';
-    if (!formData.produtoId) novosErros.produtoId = 'Produto é obrigatório';
     if (!formData.estabelecimentoId) novosErros.estabelecimentoId = 'Estabelecimento é obrigatório';
     setErrors(novosErros);
     return Object.keys(novosErros).length === 0;
   };
 
-  const abrirModalAdicao = () => {
-    setShowAddModal(true);
-    setFormData({});
-    setErrors({});
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validarFormulario()) {
+      const newPromocao: Promocao = {
+        id: formData.id || Date.now().toString(),
+        ...formData,
+      } as Promocao;
+      
+      setPromocoes(prev => formData.id 
+        ? prev.map(p => p.id === formData.id ? newPromocao : p)
+        : [...prev, newPromocao]
+      );
+      
+      setShowModal(false);
+      setFormData({});
+    }
   };
 
-  const abrirModalEdicao = (promocao: Promocao) => {
-    setShowEditModal(true);
-    setFormData({ ...promocao });
-    setErrors({});
-  };
-
-  const fecharModal = () => {
-    setShowAddModal(false);
-    setShowEditModal(false);
-    setFormData({});
-    setErrors({});
-  };
-
-  const salvarPromocao = () => {
-    if (!validarFormulario()) return;
-
-    const novaPromocao: Promocao = {
-      id: formData.id || Date.now().toString(),
-      nome: formData.nome!,
-      descricao: formData.descricao!,
-      desconto: formData.desconto!,
-      dataInicio: formData.dataInicio!,
-      dataFim: formData.dataFim!,
-      imagem: formData.imagem || 'https://via.placeholder.com/400x300?text=Sem+Imagem',
-      estabelecimentoId: formData.estabelecimentoId!,
-      produtoId: formData.produtoId!,
-    };
-
-    setPromocoes(prev => {
-      if (formData.id) {
-        return prev.map(p => p.id === novaPromocao.id ? novaPromocao : p);
-      }
-      return [...prev, novaPromocao];
-    });
-
-    fecharModal();
-  };
-
-  const excluirPromocao = (id: string) => {
-    setPromocoes(prev => prev.filter(p => p.id !== id));
+  const handleDelete = (id: string) => {
+    setPromocoes(promocoes.filter(p => p.id !== id));
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="text-3xl font-bold text-gray-800">Gerenciar Promoções</h1>
+        <h1 className="text-3xl font-bold text-gray-900 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          Gerenciar Promoções
+        </h1>
         
         <button
-          onClick={abrirModalAdicao}
-          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors"
+          onClick={() => {
+            setFormData({});
+            setShowModal(true);
+          }}
+          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all shadow-lg hover:shadow-xl"
         >
-          <FiPlus size={18} />
-          Adicionar Promoção
+          <Plus size={20} />
+          Nova Promoção
         </button>
       </div>
 
-      {/* Modal de Adição */}
+      {/* Modal */}
       <AnimatePresence>
-        {showAddModal && (
+        {showModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
           >
             <motion.div
-              initial={{ scale: 0.95 }}
-              animate={{ scale: 1 }}
-              className="bg-white rounded-xl shadow-lg p-6 w-full max-w-2xl"
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-2xl"
             >
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">Nova Promoção</h2>
+              <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {formData.id ? 'Editar' : 'Nova'} Promoção
+                </h2>
                 <button
-                  onClick={fecharModal}
-                  className="text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowModal(false)}
+                  className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100"
                 >
-                  <FiX size={24} />
+                  <X size={24} />
                 </button>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormInput
                   label="Nome"
                   value={formData.nome || ''}
@@ -228,144 +203,50 @@ export default function DashboardPromocoes() {
                 </div>
 
                 <FormSelect
-                  label="Produto"
-                  value={formData.produtoId || ''}
-                  onChange={(e) => setFormData({ ...formData, produtoId: e.target.value })}
-                  options={mockProdutos}
-                  error={errors.produtoId}
-                  required
-                />
-
-                <FormInput
-                  label="URL da Imagem"
-                  value={formData.imagem || ''}
-                  onChange={(e) => setFormData({ ...formData, imagem: e.target.value })}
-                  type="url"
-                />
-              </div>
-
-              <div className="flex justify-end gap-4 mt-6">
-                <button
-                  onClick={fecharModal}
-                  className="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={salvarPromocao}
-                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2 transition-colors"
-                >
-                  <FiSave size={18} />
-                  Criar Promoção
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Modal de Edição */}
-      <AnimatePresence>
-        {showEditModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.95 }}
-              animate={{ scale: 1 }}
-              className="bg-white rounded-xl shadow-lg p-6 w-full max-w-2xl"
-            >
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold">Editar Promoção</h2>
-                <button
-                  onClick={fecharModal}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <FiX size={24} />
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormInput
-                  label="Nome"
-                  value={formData.nome || ''}
-                  onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                  error={errors.nome}
-                  required
-                />
-
-                <FormInput
-                  label="Desconto (%)"
-                  value={formData.desconto || ''}
-                  onChange={(e) => setFormData({ ...formData, desconto: parseFloat(e.target.value) })}
-                  type="number"
-                  error={errors.desconto}
-                  required
-                />
-
-                <FormInput
-                  label="Data de Início"
-                  value={formData.dataInicio || ''}
-                  onChange={(e) => setFormData({ ...formData, dataInicio: e.target.value })}
-                  type="date"
-                  error={errors.dataInicio}
-                  required
-                />
-
-                <FormInput
-                  label="Data de Fim"
-                  value={formData.dataFim || ''}
-                  onChange={(e) => setFormData({ ...formData, dataFim: e.target.value })}
-                  type="date"
-                  error={errors.dataFim}
+                  label="Estabelecimento"
+                  value={formData.estabelecimentoId || ''}
+                  onChange={(e) => setFormData({ ...formData, estabelecimentoId: e.target.value })}
+                  options={mockEstabelecimentos}
+                  error={errors.estabelecimentoId}
                   required
                 />
 
                 <div className="md:col-span-2">
                   <FormInput
-                    label="Descrição"
-                    value={formData.descricao || ''}
-                    onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                    error={errors.descricao}
-                    required
+                    label="URL da Imagem"
+                    value={formData.imagem || ''}
+                    onChange={(e) => setFormData({ ...formData, imagem: e.target.value })}
+                    type="url"
                   />
+                  {formData.imagem && (
+                    <div className="mt-4 flex items-center gap-3">
+                      <ImageIcon className="w-6 h-6 text-gray-500" />
+                      <img
+                        src={formData.imagem}
+                        alt="Preview"
+                        className="w-32 h-32 object-cover rounded-xl border border-gray-200"
+                      />
+                    </div>
+                  )}
                 </div>
 
-                <FormSelect
-                  label="Produto"
-                  value={formData.produtoId || ''}
-                  onChange={(e) => setFormData({ ...formData, produtoId: e.target.value })}
-                  options={mockProdutos}
-                  error={errors.produtoId}
-                  required
-                />
-
-                <FormInput
-                  label="URL da Imagem"
-                  value={formData.imagem || ''}
-                  onChange={(e) => setFormData({ ...formData, imagem: e.target.value })}
-                  type="url"
-                />
-              </div>
-
-              <div className="flex justify-end gap-4 mt-6">
-                <button
-                  onClick={fecharModal}
-                  className="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={salvarPromocao}
-                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-2 transition-colors"
-                >
-                  <FiSave size={18} />
-                  Salvar Alterações
-                </button>
-              </div>
+                <div className="md:col-span-2 flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="px-6 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl flex items-center gap-2 transition-all shadow-lg hover:shadow-xl"
+                  >
+                    <Save size={20} />
+                    {formData.id ? 'Salvar Alterações' : 'Criar Promoção'}
+                  </button>
+                </div>
+              </form>
             </motion.div>
           </motion.div>
         )}
@@ -381,50 +262,59 @@ export default function DashboardPromocoes() {
               key={promocao.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="group relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+              whileHover={{ scale: 1.03 }}
+              className="group relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200"
             >
-              <div className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="bg-primary-100 p-3 rounded-xl">
-                    <FiTag className="w-8 h-8 text-primary-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{promocao.nome}</h3>
-                    <p className="text-gray-600 mb-4 line-clamp-2">{promocao.descricao}</p>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <div className="flex items-center gap-2">
-                        <FiClock className="w-5 h-5 text-amber-500" />
-                        <span>
-                          {new Date(promocao.dataInicio).toLocaleDateString()} - {new Date(promocao.dataFim).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <span className={`px-3 py-1 rounded-full ${
-                        isActive 
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-red-100 text-red-600'
-                      }`}>
-                        {isActive ? 'Ativa' : 'Expirada'}
-                      </span>
-                    </div>
-                  </div>
+              <div className="relative aspect-video overflow-hidden rounded-t-2xl">
+                <img
+                  src={promocao.imagem}
+                  alt={promocao.nome}
+                  className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent p-6 flex items-end">
+                  <h3 className="text-2xl font-bold text-white">{promocao.nome}</h3>
                 </div>
               </div>
-              
-              <div className="p-4 border-t border-gray-100 flex justify-end gap-2">
-                <button
-                  onClick={() => abrirModalEdicao(promocao)}
-                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                  aria-label="Editar"
-                >
-                  <FiEdit size={18} />
-                </button>
-                <button
-                  onClick={() => excluirPromocao(promocao.id)}
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  aria-label="Excluir"
-                >
-                  <FiTrash2 size={18} />
-                </button>
+
+              <div className="p-6">
+                <p className="text-gray-600 mb-4 line-clamp-2">{promocao.descricao}</p>
+                
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Clock className="w-5 h-5 text-purple-600" />
+                    <span>
+                      {new Date(promocao.dataInicio).toLocaleDateString()} - {new Date(promocao.dataFim).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full flex items-center gap-2 ${
+                    isActive 
+                      ? 'bg-green-100 text-green-600'
+                      : 'bg-red-100 text-red-600'
+                  }`}>
+                    <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
+                    {isActive ? 'Ativa' : 'Expirada'}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 mt-6 pt-4 border-t border-gray-100">
+                  <button
+                    onClick={() => {
+                      setFormData(promocao);
+                      setShowModal(true);
+                    }}
+                    className="p-2 text-purple-600 hover:bg-purple-50 rounded-xl transition-colors"
+                    aria-label="Editar"
+                  >
+                    <Edit size={20} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(promocao.id)}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                    aria-label="Excluir"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </div>
               </div>
             </motion.div>
           );
@@ -433,3 +323,5 @@ export default function DashboardPromocoes() {
     </div>
   );
 }
+
+export default DashboardPromocoes;

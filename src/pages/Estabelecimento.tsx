@@ -2,9 +2,10 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { mockEstabelecimentos, Estabelecimento as EstabelecimentoType } from '../mocks/estabelecimentos';
-import { mockProdutos, Produto as ProdutoType } from '../mocks/produtos';
+import { mockProdutos } from '../mocks/produtos';
 import { mockPromocoes, Promocao as PromocaoType } from '../mocks/promocoes';
 import { FiArrowLeft, FiStar, FiMapPin, FiTag, FiClock, FiShoppingBag } from 'react-icons/fi';
+import { Produto as ProdutoType } from '../types/Produto';
 
 const EstabelecimentoPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -79,6 +80,12 @@ const EstabelecimentoPage: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Descrição */}
+      <div className="mb-12">
+        <h2 className="text-2xl font-semibold text-gray-900 mb-4">Sobre o estabelecimento</h2>
+        <p className="text-gray-700 text-lg leading-relaxed">{estabelecimento.descricao}</p>
       </div>
 
       {/* Informações Principais */}
