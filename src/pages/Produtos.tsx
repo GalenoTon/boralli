@@ -1,84 +1,127 @@
 // src/pages/Produtos.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FiShoppingCart, FiHeart, FiArrowRight, FiTag, FiSearch, FiMapPin } from 'react-icons/fi';
 import { mockProdutos } from '../mocks/produtos';
-import { FiShoppingCart, FiHeart, FiArrowRight, FiTag } from 'react-icons/fi';
+import { mockEstabelecimentos } from '../mocks/estabelecimentos';
 
-const Produtos: React.FC = () => {
+const ProdutosPage: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+
+  const categories = Array.from(new Set(mockProdutos.map(prod => prod.categoria)));
+  const locations = Array.from(new Set(mockEstabelecimentos.map(est => est.poloTuristico)));
+
+  const filteredProdutos = mockProdutos.filter(prod => {
+    const estabelecimento = mockEstabelecimentos.find(est => est.id === prod.estabelecimentoId);
+    const matchesSearch = prod.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         prod.descricao.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !selectedCategory || prod.categoria === selectedCategory;
+    const matchesLocation = !selectedLocation || estabelecimento?.poloTuristico === selectedLocation;
+    return matchesSearch && matchesCategory && matchesLocation;
+  });
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Header Aprimorado */}
-      <header className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-primary-500 to-amber-600 bg-clip-text text-transparent">
-          Nossas Delícias
-        </h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Explore uma seleção premium de produtos cuidadosamente escolhidos para sua experiência gastronômica
-        </p>
-      </header>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      {/* Hero Section */}
+      <div className="relative rounded-2xl overflow-hidden bg-gray-100 mb-12">
+        <img
+          src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80"
+          alt="Produtos"
+          className="w-full h-64 sm:h-80 md:h-96 object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent p-8 flex items-end">
+          <div className="space-y-4 text-white">
+            <h1 className="text-4xl md:text-5xl font-bold">Produtos</h1>
+            <p className="text-lg md:text-xl opacity-90 max-w-2xl">
+              Explore nossa seleção de produtos e descubra as melhores ofertas
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Filtros */}
+      <div className="mb-8">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-grow">
+            <input
+              type="text"
+              placeholder="Buscar produtos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
+            <FiSearch className="absolute left-3 top-2.5 text-gray-400" />
+          </div>
+          <select
+            value={selectedCategory || ''}
+            onChange={(e) => setSelectedCategory(e.target.value || null)}
+            className="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          >
+            <option value="">Todas as categorias</option>
+            {categories.map(category => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+          <select
+            value={selectedLocation || ''}
+            onChange={(e) => setSelectedLocation(e.target.value || null)}
+            className="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          >
+            <option value="">Todos os polos</option>
+            {locations.map(location => (
+              <option key={location} value={location}>{location}</option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       {/* Grid de Produtos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {mockProdutos.map((prod) => (
-          <div
-            key={prod.id}
-            className="group relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
-          >
-            <Link to={`/produto/${prod.id}`} className="block">
-              {/* Imagem com Overlay */}
-              <div className="relative aspect-square overflow-hidden rounded-t-2xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredProdutos.map(produto => {
+          const estabelecimento = mockEstabelecimentos.find(est => est.id === produto.estabelecimentoId);
+          return (
+            <Link
+              key={produto.id}
+              to={`/produto/${produto.id}`}
+              className="group bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+            >
+              <div className="relative">
                 <img
-                  src={prod.imagem}
-                  alt={prod.nome}
-                  className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
+                  src={produto.imagem}
+                  alt={produto.nome}
+                  className="w-full h-48 sm:h-56 object-cover"
                 />
-                {/* Botão Favorito */}
-                <button className="absolute top-4 right-4 p-2 bg-white/90 rounded-full shadow-sm hover:bg-white hover:scale-110 transition-all">
-                  <FiHeart className="w-5 h-5 text-gray-400 hover:text-red-500" />
-                </button>
               </div>
-
-              {/* Conteúdo do Card */}
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-lg font-bold text-gray-900 truncate">{prod.nome}</h3>
-                  {/* <span className="flex items-center gap-1 text-primary-600">
-                    <FiShoppingCart className="w-5 h-5" />
-                  </span> */}
+              <div className="p-4">
+                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{produto.nome}</h3>
+                <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                  <FiMapPin className="w-4 h-4" />
+                  <span className="truncate">{estabelecimento?.nome}</span>
                 </div>
-
-                <p className="text-gray-600 text-sm line-clamp-2 mb-4">{prod.descricao}</p>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-xl font-bold text-primary-600">
-                      R$ {prod.preco.toFixed(2)}
-                    </span>
-                    {prod.precoOriginal && (
-                      <span className="text-gray-400 line-through text-sm">
-                        R$ {prod.precoOriginal.toFixed(2)}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center text-primary-600">
-                    <span className="text-sm mr-2">Detalhes</span>
-                    <FiArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <FiTag className="w-4 h-4" />
+                  <span>{produto.categoria}</span>
+                </div>
+                <div className="mt-3">
+                  <span className="text-lg font-semibold text-primary-600">
+                    R$ {produto.preco.toFixed(2)}
+                  </span>
                 </div>
               </div>
             </Link>
-
-            {/* Tag de Desconto */}
-            {prod.desconto && (
-              <div className="absolute top-4 left-4 bg-gradient-to-r from-primary-500 to-amber-500 text-white px-3 py-1 rounded-xl text-sm font-bold shadow">
-                -{prod.desconto}% OFF
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
+
+      {filteredProdutos.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-600">Nenhum produto encontrado</p>
+        </div>
+      )}
     </div>
   );
 };
 
-export default Produtos;
+export default ProdutosPage;

@@ -1,0 +1,321 @@
+# Requisitos do Backend - Boralli
+
+## 1. Requisitos Funcionais
+
+### 1.1 Autenticação e Usuários
+- [ ] Cadastro de usuários
+  - Clientes (nome, email, senha, telefone)
+  - Lojistas (nome, email, senha, telefone, CNPJ, razão social)
+- [ ] Login de usuários (email/senha)
+- [ ] Recuperação de senha
+- [ ] Perfil do usuário (edição de dados)
+- [ ] Favoritos do usuário (estabelecimentos e promoções) - Apenas para clientes
+- [ ] Histórico de promoções resgatadas - Apenas para clientes
+- [ ] Dashboard do lojista - Apenas para lojistas
+  - [ ] Gerenciamento de estabelecimentos
+  - [ ] Gerenciamento de produtos
+  - [ ] Gerenciamento de promoções
+  - [ ] Relatórios e estatísticas
+  - [ ] Histórico de promoções resgatadas em seus estabelecimentos
+
+### 1.2 Estabelecimentos
+- [ ] Cadastro de estabelecimentos (nome, endereço, polo turístico, categoria, imagem, descrição, telefone)
+- [ ] Listagem de estabelecimentos (com filtros)
+- [ ] Detalhes do estabelecimento
+- [ ] Edição de estabelecimento
+- [ ] Exclusão de estabelecimento
+- [ ] Avaliação de estabelecimentos
+- [ ] Upload de imagens do estabelecimento
+
+### 1.3 Produtos
+- [ ] Cadastro de produtos (nome, descrição, preço, preço original, desconto, categoria, imagem, estabelecimento)
+- [ ] Listagem de produtos (com filtros)
+- [ ] Detalhes do produto
+- [ ] Edição de produto
+- [ ] Exclusão de produto
+- [ ] Upload de imagens do produto
+
+### 1.4 Promoções
+- [ ] Cadastro de promoções (nome, descrição, desconto, data início, data fim, imagem, estabelecimento, produto)
+- [ ] Listagem de promoções (com filtros)
+- [ ] Detalhes da promoção
+- [ ] Edição de promoção
+- [ ] Exclusão de promoção
+- [ ] Upload de imagens da promoção
+- [ ] Resgate de promoções
+- [ ] Validação de promoções resgatadas
+
+### 1.5 Categorias
+- [ ] Cadastro de categorias
+- [ ] Listagem de categorias
+- [ ] Edição de categoria
+- [ ] Exclusão de categoria
+
+### 1.6 Polos Turísticos
+- [ ] Cadastro de polos turísticos
+- [ ] Listagem de polos turísticos
+- [ ] Edição de polo turístico
+- [ ] Exclusão de polo turístico
+
+## 2. Endpoints da API
+
+### 2.1 Autenticação
+```
+POST /api/auth/register - Cadastro de usuário (cliente ou lojista)
+POST /api/auth/login - Login de usuário
+POST /api/auth/forgot-password - Solicitar recuperação de senha
+POST /api/auth/reset-password - Resetar senha
+GET /api/auth/me - Obter dados do usuário logado
+PUT /api/auth/me - Atualizar dados do usuário
+```
+
+### 2.2 Usuários
+```
+GET /api/users/favorites - Listar favoritos do usuário (apenas clientes)
+POST /api/users/favorites/:id - Adicionar favorito (apenas clientes)
+DELETE /api/users/favorites/:id - Remover favorito (apenas clientes)
+GET /api/users/history - Histórico de promoções resgatadas (apenas clientes)
+```
+
+### 2.3 Estabelecimentos
+```
+GET /api/establishments - Listar estabelecimentos
+POST /api/establishments - Criar estabelecimento
+GET /api/establishments/:id - Obter detalhes do estabelecimento
+PUT /api/establishments/:id - Atualizar estabelecimento
+DELETE /api/establishments/:id - Excluir estabelecimento
+POST /api/establishments/:id/ratings - Avaliar estabelecimento
+POST /api/establishments/:id/images - Upload de imagens
+```
+
+### 2.4 Produtos
+```
+GET /api/products - Listar produtos
+POST /api/products - Criar produto
+GET /api/products/:id - Obter detalhes do produto
+PUT /api/products/:id - Atualizar produto
+DELETE /api/products/:id - Excluir produto
+POST /api/products/:id/images - Upload de imagens
+```
+
+### 2.5 Promoções
+```
+GET /api/promotions - Listar promoções
+POST /api/promotions - Criar promoção
+GET /api/promotions/:id - Obter detalhes da promoção
+PUT /api/promotions/:id - Atualizar promoção
+DELETE /api/promotions/:id - Excluir promoção
+POST /api/promotions/:id/redeem - Resgatar promoção
+POST /api/promotions/:id/images - Upload de imagens
+```
+
+### 2.6 Categorias
+```
+GET /api/categories - Listar categorias
+POST /api/categories - Criar categoria
+PUT /api/categories/:id - Atualizar categoria
+DELETE /api/categories/:id - Excluir categoria
+```
+
+### 2.7 Polos Turísticos
+```
+GET /api/tourist-spots - Listar polos turísticos
+POST /api/tourist-spots - Criar polo turístico
+PUT /api/tourist-spots/:id - Atualizar polo turístico
+DELETE /api/tourist-spots/:id - Excluir polo turístico
+```
+
+### 2.8 Dashboard do Lojista
+```
+GET /api/merchant/dashboard - Dados gerais do dashboard
+GET /api/merchant/establishments - Listar estabelecimentos do lojista
+GET /api/merchant/products - Listar produtos dos estabelecimentos
+GET /api/merchant/promotions - Listar promoções dos estabelecimentos
+GET /api/merchant/statistics - Estatísticas gerais
+GET /api/merchant/redeemed-promotions - Histórico de promoções resgatadas
+```
+
+## 3. Requisitos Não-Funcionais
+
+### 3.1 Segurança
+- [ ] Autenticação JWT
+- [ ] Validação de dados
+- [ ] Proteção contra ataques (XSS, CSRF, SQL Injection)
+- [ ] Rate limiting
+- [ ] Criptografia de senhas
+- [ ] Sanitização de inputs
+
+### 3.2 Performance
+- [ ] Cache de consultas frequentes
+- [ ] Paginação de resultados
+- [ ] Otimização de consultas
+- [ ] Compressão de imagens
+- [ ] CDN para imagens
+
+### 3.3 Escalabilidade
+- [ ] Arquitetura microserviços
+- [ ] Load balancing
+- [ ] Banco de dados replicado
+- [ ] Cache distribuído
+
+### 3.4 Disponibilidade
+- [ ] Monitoramento
+- [ ] Logs
+- [ ] Backup automático
+- [ ] Recuperação de desastres
+
+## 4. Banco de Dados
+
+### 4.1 Modelos
+
+#### Usuário
+```typescript
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  role: 'client' | 'merchant';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Merchant extends User {
+  cnpj: string;
+  companyName: string;
+  establishments: Establishment[];
+}
+```
+
+#### Estabelecimento
+```typescript
+interface Establishment {
+  id: string;
+  name: string;
+  address: string;
+  touristSpotId: string;
+  categoryId: string;
+  description: string;
+  phone: string;
+  images: string[];
+  rating: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+#### Produto
+```typescript
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  discount?: number;
+  categoryId: string;
+  establishmentId: string;
+  images: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+#### Promoção
+```typescript
+interface Promotion {
+  id: string;
+  name: string;
+  description: string;
+  discount: number;
+  startDate: Date;
+  endDate: Date;
+  establishmentId: string;
+  productId: string;
+  images: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+#### Categoria
+```typescript
+interface Category {
+  id: string;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+#### Polo Turístico
+```typescript
+interface TouristSpot {
+  id: string;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+#### Favorito
+```typescript
+interface Favorite {
+  id: string;
+  userId: string;
+  establishmentId?: string;
+  promotionId?: string;
+  createdAt: Date;
+}
+```
+
+#### Histórico de Promoções
+```typescript
+interface PromotionHistory {
+  id: string;
+  userId: string;
+  promotionId: string;
+  redeemedAt: Date;
+  status: 'pending' | 'completed' | 'expired';
+}
+```
+
+## 5. Tecnologias Recomendadas
+
+### 5.1 Backend
+- Node.js com TypeScript
+- Express.js ou NestJS
+- Prisma ORM
+- PostgreSQL
+- Redis (cache)
+- JWT para autenticação
+- AWS S3 para armazenamento de imagens
+
+### 5.2 DevOps
+- Docker
+- Kubernetes
+- GitHub Actions
+- AWS ou Google Cloud
+- Prometheus e Grafana para monitoramento
+- ELK Stack para logs
+
+## 6. Considerações Adicionais
+
+### 6.1 Integrações
+- [ ] Sistema de notificações (email, push)
+- [ ] Integração com redes sociais
+- [ ] Sistema de pagamentos
+- [ ] Google Maps API
+
+### 6.2 Documentação
+- [ ] Swagger/OpenAPI
+- [ ] Documentação de endpoints
+- [ ] Guia de contribuição
+- [ ] README detalhado
+
+### 6.3 Testes
+- [ ] Testes unitários
+- [ ] Testes de integração
+- [ ] Testes end-to-end
+- [ ] Testes de performance 

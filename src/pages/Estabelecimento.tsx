@@ -2,10 +2,9 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { mockEstabelecimentos, Estabelecimento as EstabelecimentoType } from '../mocks/estabelecimentos';
-import { mockProdutos } from '../mocks/produtos';
+import { mockProdutos, Produto as ProdutoType } from '../mocks/produtos';
 import { mockPromocoes, Promocao as PromocaoType } from '../mocks/promocoes';
 import { FiArrowLeft, FiStar, FiMapPin, FiTag, FiClock, FiShoppingBag } from 'react-icons/fi';
-import { Produto as ProdutoType } from '../types/Produto';
 
 const EstabelecimentoPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
