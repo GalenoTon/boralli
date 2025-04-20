@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { mockPromocoes, Promocao as PromocaoType } from '../mocks/promocoes';
 import { mockEstabelecimentos, Estabelecimento as EstabelecimentoType } from '../mocks/estabelecimentos';
-import { FiArrowLeft, FiClock, FiTag, FiAlertTriangle, FiStar, FiShoppingBag, FiCheckCircle, FiMapPin, FiArrowRight, FiPhone, FiShare2, FiHeart } from 'react-icons/fi';
+import { FiArrowLeft, FiClock, FiTag, FiAlertTriangle, FiShoppingBag, FiCheckCircle, FiMapPin, FiArrowRight, FiPhone, FiShare2, FiHeart } from 'react-icons/fi';
 
 const PromocaoPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

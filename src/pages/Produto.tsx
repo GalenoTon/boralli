@@ -3,7 +3,7 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { mockProdutos } from '../mocks/produtos';
 import { mockEstabelecimentos } from '../mocks/estabelecimentos';
-import { FiArrowLeft, FiShoppingCart, FiHeart, FiStar, FiMapPin, FiClock, FiTag, FiArrowRight } from 'react-icons/fi';
+import { FiArrowLeft, FiHeart, FiMapPin, FiArrowRight } from 'react-icons/fi';
 import { Produto } from '../types/Produto';
 
 const ProdutoPage: React.FC = () => {

@@ -2,7 +2,8 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { mockEstabelecimentos, Estabelecimento as EstabelecimentoType } from '../mocks/estabelecimentos';
-import { mockProdutos, Produto as ProdutoType } from '../mocks/produtos';
+import { mockProdutos } from '../mocks/produtos';
+import { Produto } from '../types/Produto';
 import { mockPromocoes, Promocao as PromocaoType } from '../mocks/promocoes';
 import { FiArrowLeft, FiStar, FiMapPin, FiTag, FiClock, FiShoppingBag } from 'react-icons/fi';
 
@@ -13,8 +14,8 @@ const EstabelecimentoPage: React.FC = () => {
     (estab: EstabelecimentoType) => estab.id === id
   );
 
-  const produtos: ProdutoType[] = mockProdutos.filter(
-    (prod: ProdutoType) => prod.estabelecimentoId === id
+  const produtos: Produto[] = mockProdutos.filter(
+    (prod: Produto) => prod.estabelecimentoId === id
   );
   const promocoes: PromocaoType[] = mockPromocoes.filter(
     (promo: PromocaoType) => promo.estabelecimentoId === id
@@ -119,7 +120,7 @@ const EstabelecimentoPage: React.FC = () => {
         
         {produtos.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {produtos.map((produto: ProdutoType) => (
+            {produtos.map((produto: Produto) => (
               <Link
                 key={produto.id}
                 to={`/produto/${produto.id}`}

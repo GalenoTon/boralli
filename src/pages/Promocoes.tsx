@@ -1,7 +1,7 @@
 // src/pages/Promocoes.tsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiSearch, FiMapPin, FiTag, FiClock } from 'react-icons/fi';
+import { FiSearch, FiMapPin, FiClock } from 'react-icons/fi';
 import { mockPromocoes } from '../mocks/promocoes';
 import { mockEstabelecimentos } from '../mocks/estabelecimentos';
 

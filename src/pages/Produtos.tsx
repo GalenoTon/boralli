@@ -1,7 +1,7 @@
 // src/pages/Produtos.tsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiShoppingCart, FiHeart, FiArrowRight, FiTag, FiSearch, FiMapPin } from 'react-icons/fi';
+import { FiTag, FiSearch, FiMapPin } from 'react-icons/fi';
 import { mockProdutos } from '../mocks/produtos';
 import { mockEstabelecimentos } from '../mocks/estabelecimentos';
 

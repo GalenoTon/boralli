@@ -1,5 +1,5 @@
 // src/pages/dashboard/DashboardLayout.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MapPin, Package, Tag, Sun, Moon, User, Settings, LogOut, ChevronRight, Home } from 'lucide-react';

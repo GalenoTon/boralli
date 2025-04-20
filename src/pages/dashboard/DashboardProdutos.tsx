@@ -1,6 +1,6 @@
 // src/pages/dashboard/DashboardProdutos.tsx
 import React, { useState } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiTag, FiShoppingCart, FiMapPin } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiTag, FiMapPin } from 'react-icons/fi';
 import { mockProdutos } from '../../mocks/produtos';
 import { mockEstabelecimentos } from '../../mocks/estabelecimentos';
 

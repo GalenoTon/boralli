@@ -1,6 +1,6 @@
 // src/pages/dashboard/DashboardEstabelecimentos.tsx
 import React, { useState, ChangeEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Edit, Trash2, Plus, X, Save, MapPin, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mockEstabelecimentos, Estabelecimento } from '../../mocks/estabelecimentos';
@@ -8,8 +8,8 @@ import { mockEstabelecimentos, Estabelecimento } from '../../mocks/estabelecimen
 const categorias = ["Bar", "Restaurante", "Cafeteria", "Outros"] as const;
 const polosTuristicos = ["Centro Histórico", "Bairro Italiano", "Zona Sul", "Jardins", "Outro"] as const;
 
-type Categoria = typeof categorias[number];
-type PoloTuristico = typeof polosTuristicos[number];
+// type Categoria = typeof categorias[number];
+// type PoloTuristico = typeof polosTuristicos[number];
 
 interface FormInputProps {
   label: string;
