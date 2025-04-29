@@ -1,7 +1,7 @@
 // src/pages/Produtos.tsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiTag, FiSearch, FiMapPin, FiFilter, FiX } from 'react-icons/fi';
+import { FiTag, FiSearch, FiFilter, FiX, FiArrowRight, FiMapPin } from 'react-icons/fi';
 import { mockProdutos } from '../mocks/produtos';
 import { mockEstabelecimentos } from '../mocks/estabelecimentos';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,16 +14,10 @@ const ProdutosPage: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
+    const checkIfMobile = () => setIsMobile(window.innerWidth < 768);
     checkIfMobile();
     window.addEventListener('resize', checkIfMobile);
-    
-    return () => {
-      window.removeEventListener('resize', checkIfMobile);
-    };
+    return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
 
   const categories = Array.from(new Set(mockProdutos.map(prod => prod.categoria)));
@@ -45,29 +39,68 @@ const ProdutosPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Hero Section - Otimizado para mobile */}
-      <div className="relative bg-primary-500">
-        <div className="absolute inset-0">
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section com Imagem do Unsplash */}
+      <div className="relative isolate overflow-hidden bg-gray-900 h-[600px]">
+        <div className="absolute inset-0 -z-10">
           <img
-            src="/images/promocoes-hero.jpg"
-            alt="Produtos"
-            className="w-full h-full object-cover opacity-20"
+            src="https://images.unsplash.com/photo-1586511925558-a4c6376fe65f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80"
+            alt="Mercado local com produtos artesanais"
+            className="h-full w-full object-cover object-center opacity-40"
+            loading="eager"
           />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary-500/20 via-primary-700/50 to-primary-900/90" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 sm:mb-4">
-              Produtos
+
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 h-full flex items-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="mx-auto max-w-3xl text-center"
+          >
+            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl">
+              <span className="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+                Sabores da Terra
+              </span>
+              <br />
+              <span className="bg-gradient-to-l from-accent-300 to-primary-400 bg-clip-text text-transparent">
+                Feito com Amor
+              </span>
             </h1>
-            <p className="text-lg sm:text-xl text-white/90 max-w-2xl mx-auto">
-              Explore nossa seleção de produtos e descubra as melhores ofertas
-            </p>
-          </div>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="mt-6 text-xl leading-8 text-gray-200 font-light max-w-2xl mx-auto"
+            >
+              Descubra produtos únicos diretamente dos produtores locais e artesãos da região
+            </motion.p>
+
+            {/* <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 260, damping: 20 }}
+              className="mt-10 flex items-center justify-center gap-x-6"
+            >
+              <Link
+                to="/produtos"
+                className="group relative flex items-center gap-2 rounded-full bg-primary-500 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:bg-primary-600 transition-all duration-300 transform hover:scale-105"
+              >
+                Explorar Produtos
+                <span className="group-hover:translate-x-1 transition-transform">
+                  <FiArrowRight className="w-5 h-5" />
+                </span>
+              </Link>
+            </motion.div> */}
+          </motion.div>
         </div>
+
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-50 via-gray-50/30" />
       </div>
 
-      {/* Barra de Pesquisa - Sempre visível */}
+      {/* Barra de Pesquisa */}
       <div className="sticky top-0 z-10 bg-white shadow-sm px-4 py-3">
         <div className="max-w-7xl mx-auto">
           <div className="relative">
@@ -91,7 +124,7 @@ const ProdutosPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Filtros - Visíveis em desktop, modal em mobile */}
+      {/* Filtros Desktop */}
       {!isMobile && (
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="bg-white rounded-xl shadow-sm p-4">
@@ -130,7 +163,7 @@ const ProdutosPage: React.FC = () => {
         </div>
       )}
 
-      {/* Modal de Filtros para Mobile */}
+      {/* Modal Filtros Mobile */}
       <AnimatePresence>
         {isMobile && showFilters && (
           <motion.div
@@ -157,9 +190,7 @@ const ProdutosPage: React.FC = () => {
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Categoria
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
                   <select
                     value={selectedCategory || ''}
                     onChange={(e) => setSelectedCategory(e.target.value || null)}
@@ -173,9 +204,7 @@ const ProdutosPage: React.FC = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Polo Turístico
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Polo Turístico</label>
                   <select
                     value={selectedLocation || ''}
                     onChange={(e) => setSelectedLocation(e.target.value || null)}
@@ -208,39 +237,7 @@ const ProdutosPage: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Indicadores de Filtros Ativos - Mobile */}
-      {isMobile && (selectedCategory || selectedLocation) && (
-        <div className="max-w-7xl mx-auto px-4 py-2">
-          <div className="flex flex-wrap gap-2">
-            {selectedCategory && (
-              <div className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
-                <FiTag className="w-3 h-3" />
-                <span>{selectedCategory}</span>
-                <button 
-                  onClick={() => setSelectedCategory(null)}
-                  className="ml-1 p-0.5 rounded-full hover:bg-primary-200"
-                >
-                  <FiX className="w-3 h-3" />
-                </button>
-              </div>
-            )}
-            {selectedLocation && (
-              <div className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
-                <FiMapPin className="w-3 h-3" />
-                <span>{selectedLocation}</span>
-                <button 
-                  onClick={() => setSelectedLocation(null)}
-                  className="ml-1 p-0.5 rounded-full hover:bg-primary-200"
-                >
-                  <FiX className="w-3 h-3" />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Grid de Produtos - Otimizado para mobile */}
+      {/* Grid de Produtos */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         {filteredProdutos.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-xl shadow-sm">

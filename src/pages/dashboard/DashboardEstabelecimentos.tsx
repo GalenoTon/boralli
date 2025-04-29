@@ -1,20 +1,17 @@
 // src/pages/dashboard/DashboardEstabelecimentos.tsx
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Edit, Trash2, Plus, X, Save, MapPin, Star } from 'lucide-react';
+import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiMapPin, FiX } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mockEstabelecimentos, Estabelecimento } from '../../mocks/estabelecimentos';
 
 const categorias = ["Bar", "Restaurante", "Cafeteria", "Outros"] as const;
 const polosTuristicos = ["Centro Histórico", "Bairro Italiano", "Zona Sul", "Jardins", "Outro"] as const;
 
-// type Categoria = typeof categorias[number];
-// type PoloTuristico = typeof polosTuristicos[number];
-
 interface FormInputProps {
   label: string;
   value: string;
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
   type?: string;
   required?: boolean;
@@ -30,16 +27,18 @@ const FormInput: React.FC<FormInputProps> = ({ label, value, onChange, error, ty
       type={type}
       value={value}
       onChange={onChange}
-      className={`border ${error ? 'border-red-500' : 'border-gray-200'} rounded-xl p-3 focus:ring-2 focus:ring-purple-300 transition-all shadow-sm`}
+      className={`w-full px-4 py-2 border ${
+        error ? 'border-red-500' : 'border-gray-200'
+      } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent`}
     />
-    {error && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><X size={14} /> {error}</p>}
+    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
   </div>
 );
 
 interface FormSelectProps {
   label: string;
   value: string;
-  onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   options: readonly string[];
   error?: string;
   required?: boolean;
@@ -54,14 +53,16 @@ const FormSelect: React.FC<FormSelectProps> = ({ label, value, onChange, options
     <select
       value={value}
       onChange={onChange}
-      className={`border ${error ? 'border-red-500' : 'border-gray-200'} rounded-xl p-3 focus:ring-2 focus:ring-purple-300 transition-all shadow-sm`}
+      className={`w-full px-4 py-2 border ${
+        error ? 'border-red-500' : 'border-gray-200'
+      } rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent`}
     >
       <option value="">Selecione...</option>
       {options.map((option) => (
         <option key={option} value={option}>{option}</option>
       ))}
     </select>
-    {error && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><X size={14} /> {error}</p>}
+    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
   </div>
 );
 
@@ -71,6 +72,20 @@ const DashboardEstabelecimentos: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState<Partial<Estabelecimento>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showModal) {
+        handleCloseModal();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showModal]);
 
   const validarFormulario = () => {
     const novosErros: Record<string, string> = {};
@@ -87,7 +102,9 @@ const DashboardEstabelecimentos: React.FC = () => {
     e.preventDefault();
     if (validarFormulario()) {
       if (formData.id) {
-        setEstabelecimentos(estabelecimentos.map(e => e.id === formData.id ? { ...e, ...formData } as Estabelecimento : e));
+        setEstabelecimentos(estabelecimentos.map(e => 
+          e.id === formData.id ? { ...e, ...formData } as Estabelecimento : e
+        ));
       } else {
         const newEstabelecimento: Estabelecimento = {
           id: Date.now().toString(),
@@ -109,123 +126,219 @@ const DashboardEstabelecimentos: React.FC = () => {
     setShowModal(true);
   };
 
+  const filteredEstabelecimentos = estabelecimentos.filter(e => {
+    const matchesSearch = e.nome.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory ? e.categoria === selectedCategory : true;
+    const matchesLocation = selectedLocation ? e.poloTuristico === selectedLocation : true;
+    return matchesSearch && matchesCategory && matchesLocation;
+  });
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="text-3xl font-bold text-gray-900 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-          Gerenciar Estabelecimentos
-        </h1>
-        
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Estabelecimentos</h1>
+          <p className="text-gray-600">Gerencie os estabelecimentos do sistema</p>
+        </div>
         <button
-          onClick={() => {
-            setFormData({});
-            setShowModal(true);
-          }}
-          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition-all shadow-lg hover:shadow-xl"
+          onClick={() => setShowModal(true)}
+          className="w-full sm:w-auto px-4 py-2 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
         >
-          <Plus size={20} />
-          Novo Estabelecimento
+          <FiPlus className="w-5 h-5" />
+          Adicionar Estabelecimento
         </button>
       </div>
 
-      {/* Modal de Adição */}
+      {/* Filtros */}
+      <div className="mb-8">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-grow">
+            <input
+              type="text"
+              placeholder="Buscar estabelecimentos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            />
+            <FiSearch className="absolute left-3 top-2.5 text-gray-400" />
+          </div>
+          <select
+            value={selectedCategory || ''}
+            onChange={(e) => setSelectedCategory(e.target.value || null)}
+            className="w-full sm:w-auto px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          >
+            <option value="">Todas as categorias</option>
+            {categorias.map(category => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+          <select
+            value={selectedLocation || ''}
+            onChange={(e) => setSelectedLocation(e.target.value || null)}
+            className="w-full sm:w-auto px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          >
+            <option value="">Todos os polos</option>
+            {polosTuristicos.map(location => (
+              <option key={location} value={location}>{location}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Grid de Estabelecimentos */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <AnimatePresence>
+          {filteredEstabelecimentos.map(estabelecimento => (
+            <motion.div
+              key={estabelecimento.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow"
+            >
+              <div className="relative h-48">
+                <img
+                  src={estabelecimento.imagem}
+                  alt={estabelecimento.nome}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-3 right-3 flex gap-2">
+                  <button
+                    onClick={() => handleEdit(estabelecimento)}
+                    className="p-2 bg-white/90 backdrop-blur-sm rounded-lg hover:bg-orange-100 text-orange-600 transition-colors"
+                    aria-label="Editar"
+                  >
+                    <FiEdit2 className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(estabelecimento.id)}
+                    className="p-2 bg-white/90 backdrop-blur-sm rounded-lg hover:bg-red-100 text-red-600 transition-colors"
+                    aria-label="Excluir"
+                  >
+                    <FiTrash2 className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              <div className="p-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{estabelecimento.nome}</h3>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{estabelecimento.descricao}</p>
+                <div className="flex items-center text-sm text-gray-500 mb-2">
+                  <FiMapPin className="w-4 h-4 mr-2" />
+                  {estabelecimento.endereco}
+                </div>
+                <div className="flex flex-wrap items-center gap-2 mt-4">
+                  <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
+                    {estabelecimento.categoria}
+                  </span>
+                  <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                    {estabelecimento.poloTuristico}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {/* Modal de Cadastro/Edição */}
       <AnimatePresence>
         {showModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+            role="dialog"
+            aria-labelledby="modal-title"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+            onClick={() => setShowModal(false)}
           >
             <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-2xl"
+              initial={{ y: 20 }}
+              animate={{ y: 0 }}
+              exit={{ y: -20 }}
+              className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {formData.id ? 'Editar' : 'Novo'} Estabelecimento
+              {/* Header */}
+              <div className="flex justify-between items-center p-6 border-b border-gray-200">
+                <h2 id="modal-title" className="text-xl font-bold text-gray-900">
+                  {formData.id ? 'Editar Estabelecimento' : 'Adicionar Estabelecimento'}
                 </h2>
                 <button
                   onClick={() => setShowModal(false)}
-                  className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  aria-label="Fechar"
                 >
-                  <X size={24} />
+                  <FiX className="w-5 h-5 text-gray-500" />
                 </button>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormInput
-                  label="Nome"
-                  value={formData.nome || ''}
-                  onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                  error={errors.nome}
-                  required
-                />
 
-                <FormInput
-                  label="Endereço"
-                  value={formData.endereco || ''}
-                  onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
-                  error={errors.endereco}
-                  required
-                />
-
-                <FormSelect
-                  label="Categoria"
-                  value={formData.categoria || ''}
-                  onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
-                  options={categorias}
-                  error={errors.categoria}
-                  required
-                />
-
-                <FormSelect
-                  label="Polo Turístico"
-                  value={formData.poloTuristico || ''}
-                  onChange={(e) => setFormData({ ...formData, poloTuristico: e.target.value })}
-                  options={polosTuristicos}
-                  error={errors.poloTuristico}
-                  required
-                />
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Descrição
-                    <span className="text-red-500 ml-1">*</span>
-                  </label>
-                  <textarea
+              {/* Corpo do Modal */}
+              <div className="overflow-y-auto max-h-[70vh] p-6 modal-scroll">
+                <form id="estabelecimento-form" onSubmit={handleSubmit} className="space-y-4">
+                  <FormInput
+                    label="Nome"
+                    value={formData.nome || ''}
+                    onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                    error={errors.nome}
+                    required
+                  />
+                  <FormInput
+                    label="Descrição"
                     value={formData.descricao || ''}
                     onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                    className={`w-full border ${errors.descricao ? 'border-red-500' : 'border-gray-200'} rounded-xl p-3 focus:ring-2 focus:ring-purple-300 transition-all shadow-sm`}
-                    rows={4}
+                    error={errors.descricao}
+                    required
                   />
-                  {errors.descricao && <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><X size={14} /> {errors.descricao}</p>}
-                </div>
-
-                <div className="md:col-span-2">
+                  <FormInput
+                    label="Endereço"
+                    value={formData.endereco || ''}
+                    onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                    error={errors.endereco}
+                    required
+                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <FormSelect
+                      label="Categoria"
+                      value={formData.categoria || ''}
+                      onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
+                      options={categorias}
+                      error={errors.categoria}
+                      required
+                    />
+                    <FormSelect
+                      label="Polo Turístico"
+                      value={formData.poloTuristico || ''}
+                      onChange={(e) => setFormData({ ...formData, poloTuristico: e.target.value })}
+                      options={polosTuristicos}
+                      error={errors.poloTuristico}
+                      required
+                    />
+                  </div>
                   <FormInput
                     label="URL da Imagem"
                     value={formData.imagem || ''}
                     onChange={(e) => setFormData({ ...formData, imagem: e.target.value })}
-                    type="url"
+                    required
                   />
-                </div>
+                </form>
               </div>
 
-              <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
+              {/* Footer */}
+              <div className="flex justify-end gap-4 p-6 border-t border-gray-200 bg-gray-50">
                 <button
+                  type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-6 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all"
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  onClick={handleSubmit}
-                  className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-xl flex items-center gap-2 transition-all shadow-lg hover:shadow-xl"
+                  form="estabelecimento-form"
+                  className="px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 rounded-lg transition-colors"
                 >
-                  <Save size={20} />
                   {formData.id ? 'Salvar Alterações' : 'Criar Estabelecimento'}
                 </button>
               </div>
@@ -233,75 +346,6 @@ const DashboardEstabelecimentos: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Grid de Estabelecimentos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {estabelecimentos.map((estabelecimento) => (
-          <motion.div
-            key={estabelecimento.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.03 }}
-            className="group relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-200"
-            onClick={() => navigate(`/dashboard/estabelecimentos/${estabelecimento.id}/edit`)}
-          >
-            <div className="relative aspect-video overflow-hidden rounded-t-2xl">
-              <img
-                src={estabelecimento.imagem}
-                alt={estabelecimento.nome}
-                className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-white">
-                    <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
-                    <span className="font-medium">4.8</span>
-                  </div>
-                  <span className="px-3 py-1 bg-purple-600/90 text-white rounded-full text-sm">
-                    {estabelecimento.categoria}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-2 truncate">{estabelecimento.nome}</h3>
-              
-              <div className="flex items-center gap-2 text-gray-600 mb-4">
-                <MapPin className="w-5 h-5 text-purple-600" />
-                <span className="text-sm truncate">{estabelecimento.endereco}</span>
-              </div>
-
-              <p className="text-gray-600 text-sm mb-6 line-clamp-2">
-                {estabelecimento.descricao}
-              </p>
-
-              <div className="flex items-center justify-end gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEdit(estabelecimento);
-                  }}
-                  className="p-2 text-purple-600 hover:bg-purple-50 rounded-xl transition-colors"
-                  aria-label="Editar"
-                >
-                  <Edit size={20} />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(estabelecimento.id);
-                  }}
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
-                  aria-label="Excluir"
-                >
-                  <Trash2 size={20} />
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
     </div>
   );
 };

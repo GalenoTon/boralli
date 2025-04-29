@@ -67,6 +67,59 @@ const PromocaoPage: React.FC = () => {
     });
   };
 
+  const renderPromotionDetails = () => {
+    if (!promocao) return null;
+
+    switch (promocao.tipo) {
+      case 'desconto':
+        return (
+          <div className="bg-green-50 p-4 rounded-lg mb-6">
+            <h3 className="text-lg font-semibold text-green-800 mb-2">🎉 Desconto Especial</h3>
+            <p className="text-green-700">
+              {promocao.desconto}% de desconto aplicado diretamente no produto/serviço
+            </p>
+          </div>
+        );
+      case 'leve-mais-pague-menos':
+        return (
+          <div className="bg-blue-50 p-4 rounded-lg mb-6">
+            <h3 className="text-lg font-semibold text-blue-800 mb-2">🎁 Leve Mais, Pague Menos</h3>
+            <p className="text-blue-700">
+              Leve {promocao.quantidadeLeve} unidades e pague apenas por {promocao.quantidadePague}
+            </p>
+          </div>
+        );
+      case 'brinde':
+        return (
+          <div className="bg-purple-50 p-4 rounded-lg mb-6">
+            <h3 className="text-lg font-semibold text-purple-800 mb-2">🎁 Brinde Exclusivo</h3>
+            <p className="text-purple-700">{promocao.brindeDescricao}</p>
+          </div>
+        );
+      case 'valor-fixo':
+        return (
+          <div className="bg-orange-50 p-4 rounded-lg mb-6">
+            <h3 className="text-lg font-semibold text-orange-800 mb-2">💵 Preço Promocional</h3>
+            <p className="text-orange-700">
+              Valor fixo de R$ {promocao.valorFixo?.toFixed(2).replace('.', ',')}
+            </p>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const getBadgeColor = (tipo: string) => {
+    switch (tipo) {
+      case 'desconto': return 'bg-green-500';
+      case 'leve-mais-pague-menos': return 'bg-blue-500';
+      case 'brinde': return 'bg-purple-500';
+      case 'valor-fixo': return 'bg-orange-500';
+      default: return 'bg-primary-500';
+    }
+  };
+
   if (!promocao) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-center p-8">
@@ -197,9 +250,8 @@ const PromocaoPage: React.FC = () => {
               }`}>
                 {isActive ? `⏳ ${daysLeft} dias restantes` : 'Expirada'}
               </span>
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-1 sm:py-2 rounded-full">
-                <FiTag className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="text-xs sm:text-sm">{estabelecimento?.categoria}</span>
+              <div className={`${getBadgeColor(promocao.tipo)} text-white px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm`}>
+                {promocao.tipo.replace(/-/g, ' ').toUpperCase()}
               </div>
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">{promocao.nome}</h1>
@@ -210,6 +262,8 @@ const PromocaoPage: React.FC = () => {
       {/* Conteúdo Principal */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-12">
         <div className="lg:col-span-2">
+          {renderPromotionDetails()}
+          
           <div className="prose max-w-none mb-6 lg:mb-12">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 lg:mb-4">Detalhes da Oferta</h2>
             <p className="text-base sm:text-lg text-gray-600 leading-relaxed">{promocao.descricao}</p>

@@ -1,6 +1,6 @@
 // src/pages/dashboard/DashboardProdutos.tsx
-import React, { useState } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiTag, FiMapPin } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
+import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiTag, FiMapPin, FiX } from 'react-icons/fi';
 import { mockProdutos } from '../../mocks/produtos';
 import { mockEstabelecimentos } from '../../mocks/estabelecimentos';
 
@@ -36,6 +36,17 @@ const DashboardProdutos: React.FC = () => {
 
   const categories = Array.from(new Set(produtos.map(prod => prod.categoria)));
   const locations = Array.from(new Set(mockEstabelecimentos.map(est => est.poloTuristico)));
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isModalOpen) {
+        handleCloseModal();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen]);
 
   const filteredProdutos = produtos.filter(prod => {
     const estabelecimento = mockEstabelecimentos.find(est => est.id === prod.estabelecimentoId);
@@ -111,7 +122,7 @@ const DashboardProdutos: React.FC = () => {
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="mt-4 md:mt-0 px-4 py-2 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors flex items-center gap-2"
+          className="mt-4 md:mt-0 px-4 py-2 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors flex items-center gap-2 shadow-md hover:shadow-lg"
         >
           <FiPlus className="w-5 h-5" />
           Adicionar Produto
@@ -127,14 +138,14 @@ const DashboardProdutos: React.FC = () => {
               placeholder="Buscar produtos..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
             <FiSearch className="absolute left-3 top-2.5 text-gray-400" />
           </div>
           <select
             value={selectedCategory || ''}
             onChange={(e) => setSelectedCategory(e.target.value || null)}
-            className="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           >
             <option value="">Todas as categorias</option>
             {categories.map(category => (
@@ -144,7 +155,7 @@ const DashboardProdutos: React.FC = () => {
           <select
             value={selectedLocation || ''}
             onChange={(e) => setSelectedLocation(e.target.value || null)}
-            className="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           >
             <option value="">Todos os polos</option>
             {locations.map(location => (
@@ -221,13 +232,15 @@ const DashboardProdutos: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleOpenModal(produto)}
-                          className="text-primary-600 hover:text-primary-900"
+                          className="text-orange-600 hover:text-orange-900"
+                          aria-label="Editar"
                         >
                           <FiEdit2 className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() => handleDelete(produto.id)}
                           className="text-red-600 hover:text-red-900"
+                          aria-label="Excluir"
                         >
                           <FiTrash2 className="w-5 h-5" />
                         </button>
@@ -243,33 +256,54 @@ const DashboardProdutos: React.FC = () => {
 
       {/* Modal de Cadastro/Edição */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
+        <div
+          role="dialog"
+          aria-labelledby="modal-title"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-all"
+          onClick={handleCloseModal}
+        >
+          <div
+            className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-hidden transform transition-all"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <h2 id="modal-title" className="text-xl font-bold text-gray-900">
                 {editingProduto ? 'Editar Produto' : 'Adicionar Produto'}
               </h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <button
+                onClick={handleCloseModal}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Fechar"
+              >
+                <FiX className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Corpo do Modal */}
+            <div className="overflow-y-auto max-h-[70vh] p-6 modal-scroll">
+              <form id="produto-form" onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nome
+                    Nome <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={formData.nome}
                     onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Descrição
+                    Descrição <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     value={formData.descricao}
                     onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     rows={3}
                     required
                   />
@@ -277,41 +311,47 @@ const DashboardProdutos: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Preço
+                      Preço <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="number"
-                      value={formData.preco}
-                      onChange={(e) => setFormData({ ...formData, preco: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      required
-                      min="0"
-                      step="0.01"
-                    />
+                    <div className="relative">
+                      <span className="absolute left-3 top-2.5 text-gray-500">R$</span>
+                      <input
+                        type="number"
+                        value={formData.preco}
+                        onChange={(e) => setFormData({ ...formData, preco: parseFloat(e.target.value) })}
+                        className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        required
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Preço Original (opcional)
+                      Preço Original
                     </label>
-                    <input
-                      type="number"
-                      value={formData.precoOriginal}
-                      onChange={(e) => setFormData({ ...formData, precoOriginal: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      min="0"
-                      step="0.01"
-                    />
+                    <div className="relative">
+                      <span className="absolute left-3 top-2.5 text-gray-500">R$</span>
+                      <input
+                        type="number"
+                        value={formData.precoOriginal}
+                        onChange={(e) => setFormData({ ...formData, precoOriginal: parseFloat(e.target.value) })}
+                        className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Categoria
+                      Categoria <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={formData.categoria}
                       onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       required
                     >
                       <option value="">Selecione uma categoria</option>
@@ -322,12 +362,12 @@ const DashboardProdutos: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Estabelecimento
+                      Estabelecimento <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={formData.estabelecimentoId}
                       onChange={(e) => setFormData({ ...formData, estabelecimentoId: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       required
                     >
                       <option value="">Selecione um estabelecimento</option>
@@ -341,32 +381,35 @@ const DashboardProdutos: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    URL da Imagem
+                    URL da Imagem <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={formData.imagem}
                     onChange={(e) => setFormData({ ...formData, imagem: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     required
                   />
                 </div>
-                <div className="flex justify-end gap-4 pt-4">
-                  <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    className="px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors"
-                  >
-                    {editingProduto ? 'Salvar Alterações' : 'Adicionar Produto'}
-                  </button>
-                </div>
               </form>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-4 p-6 border-t border-gray-200 bg-gray-50">
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                form="produto-form"
+                className="px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 rounded-lg transition-colors"
+              >
+                {editingProduto ? 'Salvar Alterações' : 'Criar Produto'}
+              </button>
             </div>
           </div>
         </div>

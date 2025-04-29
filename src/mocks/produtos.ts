@@ -79,7 +79,7 @@ export const mockProdutos: Produto[] = [
     estabelecimentoId: '4',
   },
   {
-    id: '10',
+    id: '8',
     nome: 'Hot Roll Crocante',
     descricao: '10 unidades empanadas com recheio de salmão e cream cheese',
     preco: 39.90,
