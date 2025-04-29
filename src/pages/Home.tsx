@@ -39,7 +39,6 @@ const Home: React.FC = () => {
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  const [isScrolling, setIsScrolling] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const carouselRefs = {
@@ -108,13 +107,11 @@ const Home: React.FC = () => {
   // Scroll suave dos carrosséis
   const scrollCarousel = (direction: 'left' | 'right', ref: React.RefObject<HTMLDivElement | null>) => {
     if (!ref.current) return;
-    setIsScrolling(true);
     const scrollAmount = 300;
     const target = direction === 'left'
       ? ref.current.scrollLeft - scrollAmount
       : ref.current.scrollLeft + scrollAmount;
     ref.current.scrollTo({ left: target, behavior: 'smooth' });
-    setTimeout(() => setIsScrolling(false), 500);
   };
 
   // Adiciona dados de avaliação e delivery aos mocks

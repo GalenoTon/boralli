@@ -1,6 +1,5 @@
 // src/pages/dashboard/DashboardEstabelecimentos.tsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiMapPin, FiX } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mockEstabelecimentos, Estabelecimento } from '../../mocks/estabelecimentos';
@@ -67,7 +66,6 @@ const FormSelect: React.FC<FormSelectProps> = ({ label, value, onChange, options
 );
 
 const DashboardEstabelecimentos: React.FC = () => {
-  const navigate = useNavigate();
   const [estabelecimentos, setEstabelecimentos] = useState<Estabelecimento[]>(mockEstabelecimentos);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState<Partial<Estabelecimento>>({});
@@ -86,6 +84,12 @@ const DashboardEstabelecimentos: React.FC = () => {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [showModal]);
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setFormData({});
+    setErrors({});
+  };
 
   const validarFormulario = () => {
     const novosErros: Record<string, string> = {};

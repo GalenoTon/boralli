@@ -1,7 +1,7 @@
 // src/pages/Produtos.tsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiTag, FiSearch, FiFilter, FiX, FiArrowRight, FiMapPin } from 'react-icons/fi';
+import { FiTag, FiSearch, FiFilter, FiX, FiMapPin } from 'react-icons/fi';
 import { mockProdutos } from '../mocks/produtos';
 import { mockEstabelecimentos } from '../mocks/estabelecimentos';
 import { motion, AnimatePresence } from 'framer-motion';

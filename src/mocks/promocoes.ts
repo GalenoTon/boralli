@@ -4,7 +4,7 @@ export type Promocao = {
   nome: string;
   descricao: string;
   tipo: 'desconto' | 'leve-mais-pague-menos' | 'brinde' | 'valor-fixo';
-  desconto?: number;
+  desconto: number;
   quantidadeLeve?: number;
   quantidadePague?: number;
   brindeDescricao?: string;
@@ -34,6 +34,7 @@ export const mockPromocoes: Promocao[] = [
     nome: 'Pizza do Dia',
     tipo: 'leve-mais-pague-menos',
     descricao: 'Leve 3 pizzas, pague 2',
+    desconto: 0,
     quantidadeLeve: 3,
     quantidadePague: 2,
     dataInicio: '2024-03-01',
@@ -47,6 +48,7 @@ export const mockPromocoes: Promocao[] = [
     nome: 'Rodízio Especial',
     tipo: 'brinde',
     descricao: 'Rodízio completo com sobremesa grátis',
+    desconto: 0,
     brindeDescricao: 'Sorvete de creme com calda de chocolate',
     dataInicio: '2024-03-01',
     dataFim: '2025-12-31',
@@ -59,6 +61,7 @@ export const mockPromocoes: Promocao[] = [
     nome: 'Combinado do Chef',
     tipo: 'valor-fixo',
     descricao: 'Combinado premium por preço especial',
+    desconto: 0,
     valorFixo: 79.90,
     dataInicio: '2024-03-01',
     dataFim: '2025-12-31',
