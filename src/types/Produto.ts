@@ -8,4 +8,6 @@ export interface Produto {
   categoria: string;
   imagem: string;
   estabelecimentoId: string;
+  tempoPreparo?: number;
+  disponivel?: boolean;
 } 

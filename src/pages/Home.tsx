@@ -1,21 +1,38 @@
 // src/pages/Home.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { mockEstabelecimentos } from '../mocks/estabelecimentos';
+import { mockEstabelecimentos, Estabelecimento, polosTuristicos } from '../mocks/estabelecimentos';
 import { mockProdutos } from '../mocks/produtos';
 import { mockPromocoes as mockCupons, Promocao } from '../mocks/promocoes';
+import { 
+  Search, 
+  Menu, 
+  Utensils, 
+  ShoppingCart, 
+  Coffee, 
+  Pill, 
+  PawPrint, 
+  Zap, 
+  HeartPulse, 
+  Plus,
+  Star,
+  Clock,
+  MapPin,
+  Map
+} from 'lucide-react';
 
 // Extensão dos tipos para incluir propriedades adicionais
-type EstabelecimentoComAvaliacao = {
+interface EstabelecimentoComAvaliacao extends Estabelecimento {
+  avaliacao: number;
+  tempoEntrega: string;
+  pedidoMinimo: number;
+}
+
+interface CategoriaMobile {
   id: string;
   nome: string;
-  endereco: string;
-  imagem: string;
-  avaliacao: number;
-  categoria?: string;
-  tempoEntrega?: string;
-  pedidoMinimo?: number;
-};
+  icone: React.ComponentType<{ className?: string }>;
+}
 
 // Extensão do tipo Promocao para incluir a propriedade usos
 type PromocaoComUsos = Promocao & {
@@ -23,15 +40,15 @@ type PromocaoComUsos = Promocao & {
 };
 
 // Categorias para o mobile
-const categoriasMobile = [
-  { id: 'restaurantes', nome: 'Restaurantes', icone: '🍽️' },
-  { id: 'mercados', nome: 'Mercados', icone: '🛒' },
-  { id: 'bebidas', nome: 'Bebidas', icone: '🥤' },
-  { id: 'farmácias', nome: 'Farmácias', icone: '💊' },
-  { id: 'pet', nome: 'Pet', icone: '🐾' },
-  { id: 'express', nome: 'Express', icone: '⚡' },
-  { id: 'saude', nome: 'Saúde', icone: '🏥' },
-  { id: 'mais', nome: 'Ver mais', icone: '➕' },
+const categoriasMobile: CategoriaMobile[] = [
+  { id: 'restaurantes', nome: 'Restaurantes', icone: Utensils },
+  { id: 'mercados', nome: 'Mercados', icone: ShoppingCart },
+  { id: 'bebidas', nome: 'Bebidas', icone: Coffee },
+  { id: 'farmácias', nome: 'Farmácias', icone: Pill },
+  { id: 'pet', nome: 'Pet', icone: PawPrint },
+  { id: 'express', nome: 'Express', icone: Zap },
+  { id: 'saude', nome: 'Saúde', icone: HeartPulse },
+  { id: 'mais', nome: 'Ver mais', icone: Plus },
 ];
 
 const Home: React.FC = () => {
@@ -40,6 +57,7 @@ const Home: React.FC = () => {
   const [touchEnd, setTouchEnd] = useState(0);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [poloSelecionado, setPoloSelecionado] = useState<string>('todos');
 
   const carouselRefs = {
     estabelecimentos: useRef<HTMLDivElement>(null),
@@ -115,11 +133,11 @@ const Home: React.FC = () => {
   };
 
   // Adiciona dados de avaliação e delivery aos mocks
-  const estabelecimentosComAvaliacao: EstabelecimentoComAvaliacao[] = mockEstabelecimentos.map((est) => ({
+  const estabelecimentosComAvaliacao: EstabelecimentoComAvaliacao[] = mockEstabelecimentos.map((est: Estabelecimento) => ({
     ...est,
     avaliacao: 4.5 + Math.random() * 0.5,
-    tempoEntrega: `${Math.floor(Math.random() * 30) + 15}–${Math.floor(Math.random() * 30) + 45} min`,
-    pedidoMinimo: Math.floor(Math.random() * 30) + 20,
+    tempoEntrega: `${Math.floor(Math.random() * 30) + 20} min`,
+    pedidoMinimo: Math.floor(Math.random() * 20) + 10
   }));
 
   const cuponsComUsos: PromocaoComUsos[] = mockCupons.map((cupom) => ({
@@ -127,34 +145,101 @@ const Home: React.FC = () => {
     usos: Math.random() > 0.5 ? 'Ilimitado' : `${Math.floor(Math.random() * 100) + 1} usos`,
   }));
 
+  // Filtrar estabelecimentos por polo
+  const estabelecimentosFiltrados = estabelecimentosComAvaliacao.filter(est => 
+    poloSelecionado === 'todos' || est.polo === poloSelecionado
+  );
+
   const formatPrice = (price: number) => price.toFixed(2).replace('.', ',');
 
   return (
     <div className="max-w-[1920px] mx-auto px-2 sm:px-4 lg:px-8 space-y-12 sm:space-y-20">
-      {/* Barra de pesquisa para mobile (estilo iFood) */}
+      {/* Filtro de Polos Turísticos - Mobile */}
+      <div className="md:hidden px-4">
+        <div className="flex items-center gap-2 mb-4">
+          <Map className="w-5 h-5 text-amber-600" />
+          <h2 className="text-lg font-bold text-gray-900">Polos Turísticos</h2>
+        </div>
+        <div className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide -mx-4 px-4">
+          {polosTuristicos.map((polo) => (
+            <button
+              key={polo.id}
+              onClick={() => setPoloSelecionado(polo.id)}
+              className={`flex flex-col items-center gap-2 p-3 rounded-xl min-w-[100px] transition-all duration-300 ${
+                poloSelecionado === polo.id
+                  ? 'bg-amber-500 text-white shadow-lg scale-105'
+                  : 'bg-white text-gray-700 hover:bg-amber-50 hover:shadow-md'
+              }`}
+            >
+              <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-amber-100">
+                <img
+                  src={polo.imagem}
+                  alt={polo.nome}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <span className="text-xs font-medium text-center">{polo.nome}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Filtro de Polos Turísticos - Desktop */}
+      <div className="hidden md:block">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center gap-3 mb-6">
+            <Map className="w-6 h-6 text-amber-600" />
+            <h2 className="text-2xl font-bold text-gray-900">Polos Turísticos</h2>
+          </div>
+          <div className="grid grid-cols-4 gap-6">
+            {polosTuristicos.map((polo) => (
+              <button
+                key={polo.id}
+                onClick={() => setPoloSelecionado(polo.id)}
+                className={`group relative overflow-hidden rounded-2xl h-40 transition-all duration-300 ${
+                  poloSelecionado === polo.id
+                    ? 'ring-4 ring-amber-500 shadow-xl'
+                    : 'hover:ring-2 hover:ring-amber-400 hover:shadow-lg'
+                }`}
+              >
+                <img
+                  src={polo.imagem}
+                  alt={polo.nome}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                  <h3 className="text-lg font-bold">{polo.nome}</h3>
+                  <span className="text-sm opacity-90">
+                    {estabelecimentosFiltrados.filter(est => est.polo === polo.id).length} estabelecimentos
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Barra de pesquisa para mobile */}
       <div className="sticky top-0 z-50 bg-white shadow-sm px-4 py-3 md:hidden">
         <div className="flex items-center gap-2">
           <div className="flex-1 relative">
             <input
               type="text"
               placeholder="Busque por item ou loja"
-              className="w-full bg-gray-100 rounded-full py-2.5 px-4 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+              className="w-full bg-gray-50 rounded-xl py-3 px-4 pl-11 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           </div>
-          <button className="bg-amber-500 text-white p-2.5 rounded-full">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+          <button className="bg-amber-500 text-white p-3 rounded-xl hover:bg-amber-600 transition-colors">
+            <Menu className="w-5 h-5" />
           </button>
         </div>
       </div>
 
-      {/* Hero Section */}
+      {/* Hero Section - Desktop */}
       <section
         className="relative min-h-[60vh] sm:min-h-[90vh] rounded-2xl sm:rounded-[2.5rem] overflow-hidden shadow-2xl isolate group transition-shadow hover:shadow-3xl hidden md:block"
         onTouchStart={handleTouchStart}
@@ -220,110 +305,343 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Banners para mobile (estilo iFood) */}
-      <section className="md:hidden mt-2">
-        <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 scrollbar-hide -mx-2 px-2"
+      {/* Banners para mobile */}
+      <section className="md:hidden mt-4">
+        <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 scrollbar-hide -mx-4 px-4"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}>
           {heroSlides.map((slide, idx) => (
-            <div key={idx} className="relative flex-shrink-0 w-[85vw] h-[140px] rounded-xl overflow-hidden snap-start">
+            <div key={idx} className="relative flex-shrink-0 w-[85vw] h-[200px] rounded-2xl overflow-hidden snap-start shadow-lg">
               <img 
                 src={slide.image} 
                 alt={slide.title} 
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                <h3 className="text-lg font-bold">{slide.title} {slide.highlight}</h3>
-                <p className="text-sm opacity-90 mt-1 line-clamp-1">{slide.subtitle}</p>
+                <h3 className="text-2xl font-bold leading-tight">
+                  {slide.title}{' '}
+                  <span className="text-amber-400">{slide.highlight}</span>
+                </h3>
+                <p className="text-sm opacity-90 mt-2 line-clamp-2">{slide.subtitle}</p>
+                <div className="flex gap-2 mt-3">
+                  {slide.cta.map((btn, i) => (
+                    <Link
+                      key={i}
+                      to={btn.link}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                        btn.variant === 'primary'
+                          ? 'bg-amber-500 text-white hover:bg-amber-600'
+                          : 'bg-white/10 text-white hover:bg-white/20'
+                      }`}
+                    >
+                      {btn.text}
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Categorias para mobile (estilo iFood) */}
+      {/* Como Funciona - Mobile */}
       <section className="md:hidden mt-6">
-        <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide -mx-2 px-2">
-          {categoriasMobile.map((cat) => (
-            <Link 
-              key={cat.id} 
-              to={`/categoria/${cat.id}`}
-              className="flex flex-col items-center gap-1 flex-shrink-0 w-[60px]"
-            >
-              <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-xl">
-                {cat.icone}
+        <div className="px-4">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Como Funciona</h2>
+          <div className="space-y-4">
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-amber-50">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center shadow-sm">
+                  <span className="text-white font-bold text-lg">1</span>
+                </div>
+                <h3 className="font-bold text-gray-900">Escolha seu destino</h3>
               </div>
-              <span className="text-xs text-center text-gray-700 truncate w-full">{cat.nome}</span>
-            </Link>
-          ))}
+              <p className="text-sm text-gray-600 pl-14">
+                Selecione o polo turístico que deseja visitar e descubra os melhores estabelecimentos da região
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-amber-50">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center shadow-sm">
+                  <span className="text-white font-bold text-lg">2</span>
+                </div>
+                <h3 className="font-bold text-gray-900">Explore os estabelecimentos</h3>
+              </div>
+              <p className="text-sm text-gray-600 pl-14">
+                Conheça restaurantes, bares e lojas locais com avaliações e informações detalhadas
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-amber-50">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center shadow-sm">
+                  <span className="text-white font-bold text-lg">3</span>
+                </div>
+                <h3 className="font-bold text-gray-900">Aproveite os cupons</h3>
+              </div>
+              <p className="text-sm text-gray-600 pl-14">
+                Use cupons exclusivos para economizar em seus pedidos e experiências
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-amber-50">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center shadow-sm">
+                  <span className="text-white font-bold text-lg">4</span>
+                </div>
+                <h3 className="font-bold text-gray-900">Viva a experiência</h3>
+              </div>
+              <p className="text-sm text-gray-600 pl-14">
+                Desfrute dos melhores estabelecimentos locais com descontos especiais
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Locais Imperdíveis - Desktop e Estabelecimentos para Mobile */}
-      <section className="space-y-8 sm:space-y-12">
-        <div className="flex items-center justify-between mb-3 md:mb-8">
-          <h2 className="text-lg md:text-5xl font-bold text-gray-900">
-            <span className="hidden md:inline">Locais </span>
-            <span className="md:hidden">Restaurantes em </span>
-            <span className="bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent md:inline hidden">Exclusivos</span>
-            <span className="md:hidden">Destaque</span>
-          </h2>
-          <Link to="/estabelecimentos" className="text-sm text-amber-600 font-medium md:hidden">
-            Ver todos
-          </Link>
-          <Link
-            to="/estabelecimentos"
-            className="hidden md:block px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-amber-400 to-amber-300 text-gray-900 font-bold rounded-xl hover:shadow-lg transition-all transform hover:scale-105"
-          >
-            Explorar Todos →
-          </Link>
+      {/* Categorias para mobile */}
+      <section className="md:hidden mt-6">
+        <div className="px-4">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Categorias</h2>
+          <div className="flex overflow-x-auto gap-3 pb-4 scrollbar-hide -mx-4 px-4">
+            {categoriasMobile.map((categoria) => {
+              const Icon = categoria.icone;
+              return (
+                <Link
+                  key={categoria.id}
+                  to={`/categoria/${categoria.id}`}
+                  className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white shadow-sm hover:shadow-md transition-shadow min-w-[80px]"
+                >
+                  <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center">
+                    <Icon className="w-6 h-6 text-amber-600" />
+                  </div>
+                  <span className="text-xs font-medium text-gray-700 text-center">{categoria.nome}</span>
+                </Link>
+              );
+            })}
+          </div>
         </div>
+      </section>
 
-        {/* Mobile List View de Estabelecimentos (estilo iFood) */}
-        <div className="md:hidden space-y-4">
-          {estabelecimentosComAvaliacao.slice(0, 5).map((est) => (
-            <Link
-              key={est.id}
-              to={`/estabelecimento/${est.id}`}
-              className="block bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
-            >
-              <div className="flex">
-                <div className="w-1/3 relative">
+      {/* Estabelecimentos para mobile */}
+      <section className="md:hidden mt-6">
+        <div className="px-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Restaurantes em Destaque</h2>
+            <Link to="/estabelecimentos" className="text-sm text-amber-600 font-medium">
+              Ver todos
+            </Link>
+          </div>
+          <div className="space-y-4">
+            {estabelecimentosFiltrados.slice(0, 5).map((est) => (
+              <Link
+                key={est.id}
+                to={`/estabelecimentos/${est.id}`}
+                className="block bg-white rounded-2xl shadow-sm overflow-hidden"
+              >
+                <div className="relative h-40">
                   <img
                     src={est.imagem}
                     alt={est.nome}
-                    className="w-full h-full object-cover aspect-square"
+                    className="w-full h-full object-cover"
                   />
-                </div>
-                <div className="w-2/3 p-3">
-                  <div className="flex items-center gap-1 mb-1">
-                    <span className="text-amber-500 font-bold">{est.avaliacao.toFixed(1)}</span>
-                    <span className="text-amber-500">⭐</span>
-                  </div>
-                  <h3 className="font-bold text-gray-900 truncate">{est.nome}</h3>
-                  <p className="text-xs text-gray-500 truncate">{est.endereco}</p>
-                  <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
-                    <span>{est.tempoEntrega}</span>
-                    <span>•</span>
-                    <span>Pedido min. R$ {est.pedidoMinimo}</span>
+                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1">
+                    <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                    <span className="text-sm font-medium">{est.avaliacao.toFixed(1)}</span>
                   </div>
                   {est.categoria && (
-                    <div className="mt-2">
-                      <span className="inline-block text-xs font-medium bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
+                    <div className="absolute top-2 left-2">
+                      <span className="inline-block text-xs font-medium bg-amber-100 text-amber-800 px-2 py-1 rounded-full">
                         {est.categoria}
                       </span>
                     </div>
                   )}
                 </div>
-              </div>
+                <div className="p-4">
+                  <h3 className="font-bold text-gray-900">{est.nome}</h3>
+                  <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
+                    <MapPin className="w-4 h-4" />
+                    <span className="truncate">{est.endereco}</span>
+                  </div>
+                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      <span>{est.tempoEntrega}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span>•</span>
+                      <span>Pedido min. R$ {est.pedidoMinimo}</span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Produtos em Destaque para mobile */}
+      <section className="md:hidden mt-6">
+        <div className="px-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Produtos em Destaque</h2>
+            <Link to="/produtos" className="text-sm text-amber-600 font-medium">
+              Ver todos
             </Link>
-          ))}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {mockProdutos.slice(0, 4).map((prod) => (
+              <Link
+                key={prod.id}
+                to={`/produto/${prod.id}`}
+                className="bg-white rounded-xl shadow-sm overflow-hidden"
+              >
+                <div className="aspect-square relative">
+                  <img
+                    src={prod.imagem}
+                    alt={prod.nome}
+                    className="w-full h-full object-cover"
+                  />
+                  {prod.precoOriginal && (
+                    <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded">
+                      -{Math.round(100 - (prod.preco / prod.precoOriginal) * 100)}%
+                    </span>
+                  )}
+                </div>
+                <div className="p-3">
+                  <h3 className="font-bold text-gray-900 text-sm line-clamp-1">{prod.nome}</h3>
+                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">{prod.descricao}</p>
+                  <div className="mt-2 flex items-baseline gap-1.5">
+                    <span className="text-sm font-bold text-amber-600">R$ {formatPrice(prod.preco)}</span>
+                    {prod.precoOriginal && (
+                      <span className="text-xs text-gray-400 line-through">R$ {formatPrice(prod.precoOriginal)}</span>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Cupons em Destaque para mobile */}
+      <section className="md:hidden mt-6">
+        <div className="px-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Cupons Exclusivos</h2>
+            <Link to="/promocoes" className="text-sm text-amber-600 font-medium">
+              Ver todos
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {cuponsComUsos.slice(0, 4).map((cupom) => (
+              <div
+                key={cupom.id}
+                className="relative bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-3"
+              >
+                <div className="flex items-center justify-center mb-2">
+                  <div className="bg-gradient-to-br from-amber-400 to-amber-500 rounded-lg px-3 py-2 text-center">
+                    <span className="text-xl font-black text-amber-900">{cupom.desconto}%</span>
+                    <span className="block text-[0.65rem] font-bold text-amber-800 uppercase">OFF</span>
+                  </div>
+                </div>
+                <h3 className="text-sm font-bold text-gray-900 line-clamp-1">{cupom.nome}</h3>
+                <p className="text-xs text-gray-500 mt-1 mb-2 line-clamp-2">{cupom.descricao}</p>
+                <Link
+                  to={`/promocao/${cupom.id}`}
+                  className="block w-full text-center bg-amber-500 text-white text-xs font-bold py-1.5 rounded-lg"
+                >
+                  Resgatar
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Como Funciona - Desktop */}
+      <section className="hidden md:block mt-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900">
+              Como Funciona
+            </h2>
+            <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+              Descubra como aproveitar ao máximo sua experiência em polos turísticos
+            </p>
+          </div>
+          <div className="grid grid-cols-4 gap-8">
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-amber-50 hover:shadow-xl transition-shadow">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center shadow-md mb-4">
+                  <span className="text-white font-bold text-2xl">1</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Escolha seu destino</h3>
+                <p className="text-gray-600">
+                  Selecione o polo turístico que deseja visitar e descubra os melhores estabelecimentos da região
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-amber-50 hover:shadow-xl transition-shadow">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center shadow-md mb-4">
+                  <span className="text-white font-bold text-2xl">2</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Explore os estabelecimentos</h3>
+                <p className="text-gray-600">
+                  Conheça restaurantes, bares e lojas locais com avaliações e informações detalhadas
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-amber-50 hover:shadow-xl transition-shadow">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center shadow-md mb-4">
+                  <span className="text-white font-bold text-2xl">3</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Aproveite os cupons</h3>
+                <p className="text-gray-600">
+                  Use cupons exclusivos para economizar em seus pedidos e experiências
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-amber-50 hover:shadow-xl transition-shadow">
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center shadow-md mb-4">
+                  <span className="text-white font-bold text-2xl">4</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Viva a experiência</h3>
+                <p className="text-gray-600">
+                  Desfrute dos melhores estabelecimentos locais com descontos especiais
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Locais Imperdíveis - Desktop */}
+      <section className="space-y-8 sm:space-y-12 hidden md:block">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-5xl font-bold text-gray-900">
+            <span>Locais </span>
+            <span className="bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent">Exclusivos</span>
+          </h2>
+          <Link
+            to="/estabelecimentos"
+            className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-amber-400 to-amber-300 text-gray-900 font-bold rounded-xl hover:shadow-lg transition-all transform hover:scale-105"
+          >
+            Explorar Todos →
+          </Link>
         </div>
 
         {/* Desktop Grid View */}
-        <div className="relative group hidden md:block">
+        <div className="relative group">
           <button
             onClick={() => scrollCarousel('left', carouselRefs.estabelecimentos)}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 backdrop-blur-sm rounded-full p-2 shadow-lg hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-300 -translate-x-4 group-hover:translate-x-0"
@@ -335,17 +653,17 @@ const Home: React.FC = () => {
           </button>
           <div
             ref={carouselRefs.estabelecimentos}
-            className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 scrollbar-hide -mx-2 px-2 sm:mx-0 sm:px-0 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-8"
+            className="grid grid-cols-2 lg:grid-cols-4 gap-8"
           >
-            {estabelecimentosComAvaliacao.map((est) => (
+            {estabelecimentosFiltrados.map((est) => (
               <div
                 key={est.id}
-                className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 flex-shrink-0 w-[85vw] sm:w-[300px] md:w-auto snap-center"
+                className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
                 onMouseEnter={() => setHoveredCard(est.id)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
-                <Link to={`/estabelecimento/${est.id}`} className="block">
-                  <div className="aspect-square relative overflow-hidden">
+              <Link to={`/estabelecimento/${est.id}`} className="block">
+                <div className="aspect-square relative overflow-hidden">
                     <img
                       src={est.imagem}
                       alt={est.nome}
@@ -374,14 +692,14 @@ const Home: React.FC = () => {
                         </span>
                       )}
                     </div>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-4 text-white space-y-1">
-                    <h3 className="text-xl font-bold truncate drop-shadow-md">{est.nome}</h3>
-                    <p className="text-sm font-medium truncate opacity-90">{est.endereco}</p>
-                  </div>
-                </Link>
-              </div>
-            ))}
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-4 text-white space-y-1">
+                  <h3 className="text-xl font-bold truncate drop-shadow-md">{est.nome}</h3>
+                  <p className="text-sm font-medium truncate opacity-90">{est.endereco}</p>
+                </div>
+              </Link>
+            </div>
+          ))}
           </div>
           <button
             onClick={() => scrollCarousel('right', carouselRefs.estabelecimentos)}
@@ -395,13 +713,13 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Produtos em Destaque */}
-      <section className="space-y-4 md:space-y-8">
+      {/* Produtos em Destaque - Desktop */}
+      <section className="space-y-4 md:space-y-8 hidden md:block">
         <div className="flex items-center justify-between mb-3 md:mb-8">
           <h2 className="text-lg md:text-5xl font-bold text-gray-900">
             Produtos <span className="bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent md:inline hidden">Selecionados</span>
             <span className="md:hidden">em Destaque</span>
-          </h2>
+            </h2>
           <Link to="/produtos" className="text-sm text-amber-600 font-medium md:hidden">
             Ver todos
           </Link>
@@ -411,40 +729,6 @@ const Home: React.FC = () => {
           >
             Ver Todos →
           </Link>
-        </div>
-
-        {/* Mobile Grid View para Produtos (estilo iFood) */}
-        <div className="md:hidden grid grid-cols-2 gap-3">
-          {mockProdutos.slice(0, 4).map((prod) => (
-            <Link
-              key={prod.id}
-              to={`/produto/${prod.id}`}
-              className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
-            >
-              <div className="aspect-square relative">
-                <img
-                  src={prod.imagem}
-                  alt={prod.nome}
-                  className="w-full h-full object-cover"
-                />
-                {prod.precoOriginal && (
-                  <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded">
-                    -{Math.round(100 - (prod.preco / prod.precoOriginal) * 100)}%
-                  </span>
-                )}
-              </div>
-              <div className="p-3">
-                <h3 className="font-bold text-gray-900 text-sm line-clamp-1">{prod.nome}</h3>
-                <p className="text-xs text-gray-500 mt-1 line-clamp-2">{prod.descricao}</p>
-                <div className="mt-2 flex items-baseline gap-1.5">
-                  <span className="text-sm font-bold text-amber-600">R$ {formatPrice(prod.preco)}</span>
-                  {prod.precoOriginal && (
-                    <span className="text-xs text-gray-400 line-through">R$ {formatPrice(prod.precoOriginal)}</span>
-                  )}
-                </div>
-              </div>
-            </Link>
-          ))}
         </div>
 
         {/* Desktop Grid View */}
@@ -462,25 +746,25 @@ const Home: React.FC = () => {
             ref={carouselRefs.produtos}
             className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 scrollbar-hide -mx-2 px-2 sm:mx-0 sm:px-0 md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-8"
           >
-            {mockProdutos.map((prod) => (
+          {mockProdutos.map((prod) => (
               <div
                 key={prod.id}
                 className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group hover:-translate-y-1 flex-shrink-0 w-[85vw] sm:w-[300px] md:w-auto snap-center"
                 onMouseEnter={() => setHoveredCard(prod.id)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
-                <Link to={`/produto/${prod.id}`}>
-                  <div className="aspect-square relative overflow-hidden">
+              <Link to={`/produto/${prod.id}`}>
+                <div className="aspect-square relative overflow-hidden">
                     <img
                       src={prod.imagem}
                       alt={prod.nome}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
-                    {prod.precoOriginal && (
-                      <span className="absolute top-3 left-3 bg-red-600 text-white px-2 py-1 rounded-md text-sm font-bold">
+                  {prod.precoOriginal && (
+                    <span className="absolute top-3 left-3 bg-red-600 text-white px-2 py-1 rounded-md text-sm font-bold">
                         -{Math.round(100 - (prod.preco / prod.precoOriginal) * 100)}%
-                      </span>
-                    )}
+                    </span>
+                  )}
                     <div
                       className={`absolute inset-0 bg-black/60 flex items-center justify-center transition-opacity duration-300 ${
                         hoveredCard === prod.id ? 'opacity-100' : 'opacity-0'
@@ -490,24 +774,24 @@ const Home: React.FC = () => {
                         Ver Detalhes
                       </button>
                     </div>
-                  </div>
+                </div>
                   <div className="p-4 sm:p-6 space-y-3">
-                    <h3 className="font-semibold text-gray-900 truncate text-lg">{prod.nome}</h3>
-                    <div className="flex items-baseline gap-2">
+                  <h3 className="font-semibold text-gray-900 truncate text-lg">{prod.nome}</h3>
+                  <div className="flex items-baseline gap-2">
                       <span className="text-xl font-bold text-amber-600">
                         R$ {formatPrice(prod.preco)}
                       </span>
-                      {prod.precoOriginal && (
+                    {prod.precoOriginal && (
                         <span className="text-gray-400 line-through text-sm">
                           R$ {formatPrice(prod.precoOriginal)}
                         </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 truncate">{prod.descricao}</p>
+                    )}
                   </div>
-                </Link>
-              </div>
-            ))}
+                  <p className="text-sm text-gray-600 truncate">{prod.descricao}</p>
+                </div>
+              </Link>
+            </div>
+          ))}
           </div>
           <button
             onClick={() => scrollCarousel('right', carouselRefs.produtos)}
@@ -521,13 +805,13 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Cupons em Destaque */}
-      <section className="space-y-4 md:space-y-8">
+      {/* Cupons em Destaque - Desktop */}
+      <section className="space-y-4 md:space-y-8 hidden md:block">
         <div className="flex items-center justify-between mb-3 md:mb-8">
           <h2 className="text-lg md:text-5xl font-bold text-gray-900">
             Cupons <span className="bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent md:inline hidden">exclusivos</span>
             <span className="md:hidden">em Destaque</span>
-          </h2>
+            </h2>
           <Link to="/promocoes" className="text-sm text-amber-600 font-medium md:hidden">
             Ver todos
           </Link>
@@ -538,32 +822,7 @@ const Home: React.FC = () => {
             Ver Todos →
           </Link>
         </div>
-
-        {/* Mobile Grid View para Cupons (estilo iFood) */}
-        <div className="md:hidden grid grid-cols-2 gap-3">
-          {cuponsComUsos.slice(0, 4).map((cupom) => (
-            <div
-              key={cupom.id}
-              className="relative bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-3"
-            >
-              <div className="flex items-center justify-center mb-2">
-                <div className="bg-gradient-to-br from-amber-400 to-amber-500 rounded-lg px-3 py-2 text-center">
-                  <span className="text-xl font-black text-amber-900">{cupom.desconto}%</span>
-                  <span className="block text-[0.65rem] font-bold text-amber-800 uppercase">OFF</span>
-                </div>
-              </div>
-              <h3 className="text-sm font-bold text-gray-900 line-clamp-1">{cupom.nome}</h3>
-              <p className="text-xs text-gray-500 mt-1 mb-2 line-clamp-2">{cupom.descricao}</p>
-              <Link
-                to={`/promocao/${cupom.id}`}
-                className="block w-full text-center bg-amber-500 text-white text-xs font-bold py-1.5 rounded-lg"
-              >
-                Resgatar
-              </Link>
-            </div>
-          ))}
-        </div>
-
+  
         {/* Desktop Grid View */}
         <div className="relative group hidden md:block">
           <button
@@ -580,61 +839,61 @@ const Home: React.FC = () => {
             className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 scrollbar-hide -mx-2 px-2 sm:mx-0 sm:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6"
           >
             {cuponsComUsos.map((cupom) => (
-              <div
-                key={cupom.id}
+      <div
+        key={cupom.id}
                 className="relative group bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-100 overflow-hidden p-4 sm:p-6 flex-shrink-0 w-[85vw] sm:w-[300px] md:w-auto snap-center"
                 onMouseEnter={() => setHoveredCard(cupom.id)}
                 onMouseLeave={() => setHoveredCard(null)}
-              >
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="space-y-2">
-                    <span className="inline-block px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full">
-                      Oferta Limitada
-                    </span>
-                    <h3 className="text-xl font-bold text-gray-900">{cupom.nome}</h3>
-                    <p className="text-sm text-gray-600">{cupom.descricao}</p>
-                  </div>
+      >
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="space-y-2">
+            <span className="inline-block px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full">
+              Oferta Limitada
+            </span>
+            <h3 className="text-xl font-bold text-gray-900">{cupom.nome}</h3>
+            <p className="text-sm text-gray-600">{cupom.descricao}</p>
+          </div>
                   <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-amber-400 to-amber-500 rounded-lg flex flex-col items-center justify-center shadow-md">
-                    <span className="text-xl font-black text-amber-900">{cupom.desconto}%</span>
-                    <span className="text-[0.65rem] font-bold text-amber-800 uppercase">OFF</span>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex items-center gap-2">
-                      <div className="p-2 bg-amber-100 rounded-md">
-                        <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Validade</p>
-                        <p className="text-sm font-semibold text-gray-800">{cupom.dataFim}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="p-2 bg-amber-100 rounded-md">
-                        <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500">Usos</p>
+            <span className="text-xl font-black text-amber-900">{cupom.desconto}%</span>
+            <span className="text-[0.65rem] font-bold text-amber-800 uppercase">OFF</span>
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-amber-100 rounded-md">
+                <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Validade</p>
+                <p className="text-sm font-semibold text-gray-800">{cupom.dataFim}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-amber-100 rounded-md">
+                <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Usos</p>
                         <p className="text-sm font-semibold text-gray-800">{cupom.usos}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <Link
-                    to={`/promocao/${cupom.id}`}
+              </div>
+            </div>
+          </div>
+          <Link
+            to={`/promocao/${cupom.id}`}
                     className={`block w-full text-center bg-gradient-to-r from-amber-400 to-amber-300 text-gray-900 text-sm font-bold py-2.5 px-4 rounded-lg transition-transform duration-300 ${
                       hoveredCard === cupom.id ? 'shadow-lg transform scale-105' : 'hover:shadow-sm'
                     }`}
-                  >
-                    Resgatar Agora →
-                  </Link>
-                </div>
-              </div>
-            ))}
+          >
+            Resgatar Agora →
+          </Link>
+        </div>
+      </div>
+    ))}
           </div>
           <button
             onClick={() => scrollCarousel('right', carouselRefs.cupons)}
@@ -645,8 +904,8 @@ const Home: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
             </svg>
           </button>
-        </div>
-      </section>
+  </div>
+</section>
     </div>
   );
 };

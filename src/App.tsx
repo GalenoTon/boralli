@@ -8,6 +8,7 @@ import Estabelecimentos from './pages/Estabelecimentos';
 import Estabelecimento from './pages/Estabelecimento';
 import Produtos from './pages/Produtos';
 import Produto from './pages/Produto';
+import ProdutoDetalhe from './pages/ProdutoDetalhe';
 import Promocoes from './pages/Promocoes';
 import Promocao from './pages/Promocao';
 import Favoritos from './pages/Favoritos';
@@ -30,6 +31,7 @@ function App() {
           <Route path="/estabelecimento/:id" element={<Estabelecimento />} />
           <Route path="/produtos" element={<Produtos />} />
           <Route path="/produto/:id" element={<Produto />} />
+          <Route path="/produto/detalhe/:id" element={<ProdutoDetalhe />} />
           <Route path="/promocoes" element={<Promocoes />} />
           <Route path="/promocao/:id" element={<Promocao />} />
           <Route path="/favoritos" element={<Favoritos />} />
