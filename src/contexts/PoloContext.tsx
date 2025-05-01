@@ -1,7 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { Estabelecimento } from '../mocks/estabelecimentos';
-import { Produto } from '../types/Produto';
-import { Promocao } from '../mocks/promocoes';
 
 interface PoloContextType {
   poloSelecionado: string;
@@ -10,29 +8,25 @@ interface PoloContextType {
   filtrarEstabelecimentos: (estabelecimentos: Estabelecimento[]) => Estabelecimento[];
 }
 
-const PoloContext = createContext<PoloContextType | undefined>(undefined);
+export const PoloContext = createContext<PoloContextType>({} as PoloContextType);
 
-export function PoloProvider({ children }: { children: ReactNode }) {
-  const [poloSelecionado, setPoloSelecionado] = useState('todos');
+export const PoloProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [poloSelecionado, setPoloSelecionado] = useState('');
 
-  // Função para filtrar estabelecimentos
-  const filtrarEstabelecimentos = (estabelecimentos: Estabelecimento[]) => {
-    if (poloSelecionado === 'todos') return estabelecimentos;
-    return estabelecimentos.filter(est => est.polo === poloSelecionado);
-  };
-
-  // Função genérica para filtrar itens relacionados a estabelecimentos (produtos e promoções)
   const filtrarPorPolo = <T extends { estabelecimentoId: string }>(
     items: T[],
     estabelecimentos: Estabelecimento[]
   ): T[] => {
-    if (poloSelecionado === 'todos') return items;
-    
-    const estabelecimentosDoPolo = estabelecimentos
-      .filter(est => est.polo === poloSelecionado)
-      .map(est => est.id);
-    
-    return items.filter(item => estabelecimentosDoPolo.includes(item.estabelecimentoId));
+    if (!poloSelecionado) return items;
+    const estabelecimentosDosPolo = estabelecimentos.filter(e => e.polo === poloSelecionado);
+    return items.filter(item => 
+      estabelecimentosDosPolo.some(e => e.id === item.estabelecimentoId)
+    );
+  };
+
+  const filtrarEstabelecimentos = (estabelecimentos: Estabelecimento[]): Estabelecimento[] => {
+    if (!poloSelecionado) return estabelecimentos;
+    return estabelecimentos.filter(e => e.polo === poloSelecionado);
   };
 
   return (
@@ -45,12 +39,6 @@ export function PoloProvider({ children }: { children: ReactNode }) {
       {children}
     </PoloContext.Provider>
   );
-}
+};
 
-export function usePolo() {
-  const context = useContext(PoloContext);
-  if (context === undefined) {
-    throw new Error('usePolo must be used within a PoloProvider');
-  }
-  return context;
-} 
+export const usePolo = () => useContext(PoloContext); 

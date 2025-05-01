@@ -1,5 +1,4 @@
-import React from 'react';
-import { Utensils, ShoppingCart, Coffee, Pill, PawPrint, Zap, HeartPulse, Plus } from 'lucide-react';
+import { Utensils, ShoppingCart } from 'lucide-react';
 
 const categorias = [
   { id: 'restaurantes', nome: 'Restaurantes', icone: Utensils },

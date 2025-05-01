@@ -9,6 +9,8 @@ export interface Estabelecimento {
   imagem: string;
   categoria: string;
   polo: string;
+  avaliacao: number;
+  tempoEntrega: string;
   get poloTuristico(): string;
 }
 
@@ -29,6 +31,8 @@ export const mockEstabelecimentos: Estabelecimento[] = [
     imagem: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
     categoria: 'Bar',
     polo: 'lapa',
+    avaliacao: 4.5,
+    tempoEntrega: "30-45 min",
     get poloTuristico() { return getNomePolo(this.polo); }
   },
   {
@@ -41,6 +45,8 @@ export const mockEstabelecimentos: Estabelecimento[] = [
     imagem: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
     categoria: 'Restaurante',
     polo: 'feira-sao-cristovao',
+    avaliacao: 4.5,
+    tempoEntrega: "30-45 min",
     get poloTuristico() { return getNomePolo(this.polo); }
   },
   {
@@ -53,6 +59,8 @@ export const mockEstabelecimentos: Estabelecimento[] = [
     imagem: 'https://images.unsplash.com/photo-1445116572660-236099ec97a0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
     categoria: 'Cafeteria',
     polo: 'santa-teresa',
+    avaliacao: 4.5,
+    tempoEntrega: "30-45 min",
     get poloTuristico() { return getNomePolo(this.polo); }
   },
   {
@@ -65,6 +73,8 @@ export const mockEstabelecimentos: Estabelecimento[] = [
     imagem: 'https://images.unsplash.com/photo-1583623025817-d180a2221d0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
     categoria: 'Bar',
     polo: 'baixo-meier',
+    avaliacao: 4.5,
+    tempoEntrega: "30-45 min",
     get poloTuristico() { return getNomePolo(this.polo); }
   },
   {
@@ -77,6 +87,8 @@ export const mockEstabelecimentos: Estabelecimento[] = [
     imagem: 'https://images.unsplash.com/photo-1590947132387-155cc02f3212?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
     categoria: 'Restaurante',
     polo: 'copacabana',
+    avaliacao: 4.5,
+    tempoEntrega: "30-45 min",
     get poloTuristico() { return getNomePolo(this.polo); }
   },
   {
@@ -89,6 +101,8 @@ export const mockEstabelecimentos: Estabelecimento[] = [
     imagem: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
     categoria: 'Cafeteria',
     polo: 'ipanema',
+    avaliacao: 4.5,
+    tempoEntrega: "30-45 min",
     get poloTuristico() { return getNomePolo(this.polo); }
   },
   {
@@ -101,6 +115,8 @@ export const mockEstabelecimentos: Estabelecimento[] = [
     imagem: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80',
     categoria: 'Bar',
     polo: 'leblon',
+    avaliacao: 4.5,
+    tempoEntrega: "30-45 min",
     get poloTuristico() { return getNomePolo(this.polo); }
   }
 ];

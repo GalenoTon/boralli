@@ -1,14 +1,14 @@
 // src/pages/Produtos.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { mockProdutos } from '../mocks/produtos';
 import { mockEstabelecimentos } from '../mocks/estabelecimentos';
-import { Search, Filter, DollarSign } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { usePolo } from '../contexts/PoloContext';
 
 const Produtos = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const { poloSelecionado, filtrarPorPolo } = usePolo();
+  const { filtrarPorPolo } = usePolo();
   const produtos = filtrarPorPolo(mockProdutos, mockEstabelecimentos);
 
   const formatPrice = (price: number) => price.toFixed(2).replace('.', ',');

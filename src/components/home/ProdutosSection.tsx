@@ -1,23 +1,10 @@
-import React, { useRef } from 'react';
-import { Link } from 'react-router-dom';
-import type { Produto } from '../../types/produto';
+import type { Produto } from '../../types/Produto';
 
 interface Props {
   produtos: Produto[];
 }
 
-const ProdutosSection: React.FC<Props> = ({ produtos }) => {
-  const carouselRef = useRef<HTMLDivElement>(null);
-
-  const scrollCarousel = (direction: 'left' | 'right') => {
-    if (!carouselRef.current) return;
-    const scrollAmount = 300;
-    const target = direction === 'left'
-      ? carouselRef.current.scrollLeft - scrollAmount
-      : carouselRef.current.scrollLeft + scrollAmount;
-    carouselRef.current.scrollTo({ left: target, behavior: 'smooth' });
-  };
-
+const ProdutosSection: React.FC<Props> = () => {
   return (
     <section className="py-8 bg-white">
       <div className="container mx-auto px-4">

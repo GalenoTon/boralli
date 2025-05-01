@@ -1,13 +1,13 @@
 // src/pages/Promocoes.tsx
-import React, { useState } from 'react';
-import { mockPromocoes, Promocao } from '../mocks/promocoes';
+import { useState } from 'react';
+import { mockPromocoes } from '../mocks/promocoes';
 import { mockEstabelecimentos } from '../mocks/estabelecimentos';
 import { Search, Calendar, Users, Store, Check, DollarSign } from 'lucide-react';
 import { usePolo } from '../contexts/PoloContext';
 
 const Promocoes = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const { poloSelecionado, filtrarPorPolo } = usePolo();
+  const { filtrarPorPolo } = usePolo();
   const promocoes = filtrarPorPolo(mockPromocoes, mockEstabelecimentos);
 
   return (

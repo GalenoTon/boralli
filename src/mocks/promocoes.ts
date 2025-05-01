@@ -14,6 +14,7 @@ export type Promocao = {
   imagem: string;
   estabelecimentoId: string;
   produtoId: string;
+  titulo: string;
 };
 
 export const mockPromocoes: Promocao[] = [
@@ -28,6 +29,7 @@ export const mockPromocoes: Promocao[] = [
     imagem: 'https://images.unsplash.com/photo-1571613316887-6f8d5cbf7ef7',
     estabelecimentoId: '1',
     produtoId: '1',
+    titulo: "Nome da Promoção",
   },
   {
     id: '2',
@@ -42,6 +44,7 @@ export const mockPromocoes: Promocao[] = [
     imagem: 'https://images.unsplash.com/photo-1595854341625-f33ee10dbf94',
     estabelecimentoId: '2',
     produtoId: '3',
+    titulo: "Nome da Promoção",
   },
   {
     id: '3',
@@ -55,6 +58,7 @@ export const mockPromocoes: Promocao[] = [
     imagem: 'https://images.unsplash.com/photo-1558030006-450675393462',
     estabelecimentoId: '3',
     produtoId: '5',
+    titulo: "Nome da Promoção",
   },
   {
     id: '4',
@@ -68,6 +72,7 @@ export const mockPromocoes: Promocao[] = [
     imagem: 'https://images.unsplash.com/photo-1611143669185-af224c5e3252',
     estabelecimentoId: '4',
     produtoId: '7',
+    titulo: "Nome da Promoção",
   },
   {
     id: '5',
@@ -80,5 +85,6 @@ export const mockPromocoes: Promocao[] = [
     imagem: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87',
     estabelecimentoId: '5',
     produtoId: '9',
+    titulo: "Nome da Promoção",
   }
 ];

@@ -1,8 +1,8 @@
 // src/pages/Estabelecimentos.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { mockEstabelecimentos, polosTuristicos } from '../mocks/estabelecimentos';
-import { Star, Clock, MapPin, Search, Filter } from 'lucide-react';
+import { Star, MapPin, Search } from 'lucide-react';
 import { usePolo } from '../contexts/PoloContext';
 
 const Estabelecimentos = () => {

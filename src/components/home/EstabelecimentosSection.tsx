@@ -1,6 +1,4 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Clock, MapPin } from 'lucide-react';
 import type { EstabelecimentoComAvaliacao } from '../../types/estabelecimento';
 
 interface Props {
