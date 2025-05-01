@@ -1,305 +1,124 @@
 // src/pages/Produtos.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiTag, FiSearch, FiFilter, FiX, FiMapPin } from 'react-icons/fi';
 import { mockProdutos } from '../mocks/produtos';
 import { mockEstabelecimentos } from '../mocks/estabelecimentos';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Search, Filter, DollarSign } from 'lucide-react';
+import { usePolo } from '../contexts/PoloContext';
 
-const ProdutosPage: React.FC = () => {
+const Produtos = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const { poloSelecionado, filtrarPorPolo } = usePolo();
+  const produtos = filtrarPorPolo(mockProdutos, mockEstabelecimentos);
 
-  useEffect(() => {
-    const checkIfMobile = () => setIsMobile(window.innerWidth < 768);
-    checkIfMobile();
-    window.addEventListener('resize', checkIfMobile);
-    return () => window.removeEventListener('resize', checkIfMobile);
-  }, []);
-
-  const categories = Array.from(new Set(mockProdutos.map(prod => prod.categoria)));
-  const locations = Array.from(new Set(mockEstabelecimentos.map(est => est.poloTuristico)));
-
-  const filteredProdutos = mockProdutos.filter(prod => {
-    const estabelecimento = mockEstabelecimentos.find(est => est.id === prod.estabelecimentoId);
-    const matchesSearch = prod.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         prod.descricao.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || prod.categoria === selectedCategory;
-    const matchesLocation = !selectedLocation || estabelecimento?.poloTuristico === selectedLocation;
-    return matchesSearch && matchesCategory && matchesLocation;
-  });
-
-  const clearFilters = () => {
-    setSelectedCategory(null);
-    setSelectedLocation(null);
-    setSearchTerm('');
-  };
+  const formatPrice = (price: number) => price.toFixed(2).replace('.', ',');
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section com Imagem do Unsplash */}
-      <div className="relative isolate overflow-hidden bg-gray-900 h-[600px]">
-        <div className="absolute inset-0 -z-10">
-          <img
-            src="https://images.unsplash.com/photo-1586511925558-a4c6376fe65f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80"
-            alt="Mercado local com produtos artesanais"
-            className="h-full w-full object-cover object-center opacity-40"
-            loading="eager"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-primary-500/20 via-primary-700/50 to-primary-900/90" />
-        </div>
+      {/* Hero Section */}
+      <div className="relative bg-gray-900 overflow-hidden">
+        {/* Background com overlay */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ 
+            backgroundImage: 'url(https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop)',
+            filter: 'brightness(0.3)'
+          }}
+        />
 
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 h-full flex items-center">
-          <motion.div 
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="mx-auto max-w-3xl text-center"
-          >
-            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl">
-              <span className="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
-                Sabores da Terra
-              </span>
-              <br />
-              <span className="bg-gradient-to-l from-accent-300 to-primary-400 bg-clip-text text-transparent">
-                Feito com Amor
-              </span>
+        {/* Conteúdo do Hero */}
+        <div className="relative max-w-[1280px] mx-auto px-4 py-12">
+          <div className="max-w-4xl mx-auto text-center">
+            <span className="inline-block px-4 py-2 rounded-full bg-amber-500/10 text-amber-500 text-sm font-medium mb-6">
+              Gastronomia Carioca
+            </span>
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+              Produtos em Destaque
             </h1>
+            <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
+              Explore os melhores pratos, bebidas e especialidades dos estabelecimentos do Rio
+            </p>
 
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="mt-6 text-xl leading-8 text-gray-200 font-light max-w-2xl mx-auto"
-            >
-              Descubra produtos únicos diretamente dos produtores locais e artesãos da região
-            </motion.p>
-
-            {/* <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 260, damping: 20 }}
-              className="mt-10 flex items-center justify-center gap-x-6"
-            >
-              <Link
-                to="/produtos"
-                className="group relative flex items-center gap-2 rounded-full bg-primary-500 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:bg-primary-600 transition-all duration-300 transform hover:scale-105"
-              >
-                Explorar Produtos
-                <span className="group-hover:translate-x-1 transition-transform">
-                  <FiArrowRight className="w-5 h-5" />
-                </span>
-              </Link>
-            </motion.div> */}
-          </motion.div>
-        </div>
-
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-50 via-gray-50/30" />
-      </div>
-
-      {/* Barra de Pesquisa */}
-      <div className="sticky top-0 z-10 bg-white shadow-sm px-4 py-3">
-        <div className="max-w-7xl mx-auto">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Buscar produtos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            />
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            {isMobile && (
-              <button 
-                onClick={() => setShowFilters(!showFilters)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-              >
-                <FiFilter className="w-5 h-5 text-gray-600" />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Filtros Desktop */}
-      {!isMobile && (
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="bg-white rounded-xl shadow-sm p-4">
-            <div className="flex flex-col md:flex-row gap-4">
+            {/* Barra de Busca e Filtros */}
+            <div className="flex flex-col md:flex-row gap-4 max-w-3xl mx-auto">
+              <div className="flex-1 relative">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Buscar produtos..."
+                  className="w-full pl-12 pr-4 h-14 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
               <select
-                value={selectedCategory || ''}
-                onChange={(e) => setSelectedCategory(e.target.value || null)}
-                className="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="h-14 px-6 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               >
                 <option value="">Todas as categorias</option>
-                {categories.map(category => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
+                <option value="comida">Comidas</option>
+                <option value="bebida">Bebidas</option>
+                <option value="souvenir">Souvenirs</option>
               </select>
-              <select
-                value={selectedLocation || ''}
-                onChange={(e) => setSelectedLocation(e.target.value || null)}
-                className="px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              >
-                <option value="">Todos os polos</option>
-                {locations.map(location => (
-                  <option key={location} value={location}>{location}</option>
-                ))}
-              </select>
-              {(selectedCategory || selectedLocation || searchTerm) && (
-                <button
-                  onClick={clearFilters}
-                  className="px-4 py-2 text-primary-600 hover:bg-primary-50 rounded-xl transition-colors flex items-center gap-2"
-                >
-                  <FiX className="w-4 h-4" />
-                  Limpar filtros
-                </button>
-              )}
             </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Modal Filtros Mobile */}
-      <AnimatePresence>
-        {isMobile && showFilters && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md"
-            >
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Filtros</h2>
-                <button
-                  onClick={() => setShowFilters(false)}
-                  className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                >
-                  <FiX className="w-5 h-5 text-gray-500" />
-                </button>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
-                  <select
-                    value={selectedCategory || ''}
-                    onChange={(e) => setSelectedCategory(e.target.value || null)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  >
-                    <option value="">Todas as categorias</option>
-                    {categories.map(category => (
-                      <option key={category} value={category}>{category}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Polo Turístico</label>
-                  <select
-                    value={selectedLocation || ''}
-                    onChange={(e) => setSelectedLocation(e.target.value || null)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  >
-                    <option value="">Todos os polos</option>
-                    {locations.map(location => (
-                      <option key={location} value={location}>{location}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-                  <button
-                    onClick={clearFilters}
-                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
-                  >
-                    Limpar
-                  </button>
-                  <button
-                    onClick={() => setShowFilters(false)}
-                    className="px-4 py-2 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors"
-                  >
-                    Aplicar
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Container Principal - Ajustado espaçamento */}
+      <div className="max-w-[1280px] mx-auto px-4">
+        {/* Seção de Filtros Ativos */}
+        <div className="py-4 flex flex-wrap gap-2">
+          {searchTerm && (
+            <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-sm">
+              Busca: {searchTerm}
+              <button onClick={() => setSearchTerm('')} className="ml-2">×</button>
+            </span>
+          )}
+        </div>
 
-      {/* Grid de Produtos */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        {filteredProdutos.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-xl shadow-sm">
-            <p className="text-gray-500">Nenhum produto encontrado.</p>
-            <button
-              onClick={clearFilters}
-              className="mt-4 px-4 py-2 text-primary-600 hover:bg-primary-50 rounded-xl transition-colors"
-            >
-              Limpar filtros
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {filteredProdutos.map(produto => {
-              const estabelecimento = mockEstabelecimentos.find(est => est.id === produto.estabelecimentoId);
-              return (
-                <Link
-                  key={produto.id}
-                  to={`/produto/${produto.id}`}
-                  className="group bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden"
-                >
-                  <div className="relative">
-                    <img
-                      src={produto.imagem}
-                      alt={produto.nome}
-                      className="w-full h-48 sm:h-56 object-cover"
-                    />
-                    {produto.desconto && (
-                      <div className="absolute top-3 right-3 bg-red-500 text-white px-2 py-1 rounded-lg text-xs font-bold">
-                        -{produto.desconto}% OFF
-                      </div>
-                    )}
+        {/* Grid de Produtos */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 pb-8">
+          {produtos
+            .filter((produto) =>
+              produto.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              produto.descricao.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+            .map((produto) => (
+              <Link
+                key={produto.id}
+                to={`/produto/${produto.id}`}
+                className="bg-white rounded-lg hover:shadow-md transition-shadow overflow-hidden group"
+              >
+                <div className="relative">
+                  <img
+                    src={produto.imagem}
+                    alt={produto.nome}
+                    className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-2 right-2 bg-amber-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+                    R$ {formatPrice(produto.preco)}
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{produto.nome}</h3>
-                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-                      <FiMapPin className="w-4 h-4 text-primary-500" />
-                      <span className="truncate">{estabelecimento?.nome}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-                      <FiTag className="w-4 h-4 text-primary-500" />
-                      <span>{produto.categoria}</span>
-                    </div>
-                    <div className="mt-3 flex items-baseline gap-2">
-                      <span className="text-lg font-semibold text-primary-600">
-                        R$ {produto.preco.toFixed(2)}
-                      </span>
-                      {produto.precoOriginal && (
-                        <span className="text-sm text-gray-400 line-through">
-                          R$ {produto.precoOriginal.toFixed(2)}
-                        </span>
-                      )}
-                    </div>
+                </div>
+                <div className="p-3">
+                  <h3 className="font-medium text-sm mb-1 line-clamp-1">{produto.nome}</h3>
+                  <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                    {produto.descricao}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500 truncate">
+                      {mockEstabelecimentos.find(e => e.id === produto.estabelecimentoId)?.nome}
+                    </span>
+                    <button className="px-2 py-1 bg-amber-500 text-white rounded text-xs">
+                      Ver mais
+                    </button>
                   </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+                </div>
+              </Link>
+            ))}
+        </div>
       </div>
     </div>
   );
 };
 
-export default ProdutosPage;
+export default Produtos;

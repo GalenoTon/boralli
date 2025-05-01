@@ -19,34 +19,37 @@ import DashboardEstabelecimentos from './pages/dashboard/DashboardEstabeleciment
 import DashboardEstabelecimentoEdit from './pages/dashboard/DashboardEstabelecimentoEdit';
 import DashboardProdutos from './pages/dashboard/DashboardProdutos';
 import DashboardPromocoes from './pages/dashboard/DashboardPromocoes';
+import { PoloProvider } from './contexts/PoloContext';
 
 function App() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-grow">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/estabelecimentos" element={<Estabelecimentos />} />
-          <Route path="/estabelecimento/:id" element={<Estabelecimento />} />
-          <Route path="/produtos" element={<Produtos />} />
-          <Route path="/produto/:id" element={<Produto />} />
-          <Route path="/produto/detalhe/:id" element={<ProdutoDetalhe />} />
-          <Route path="/promocoes" element={<Promocoes />} />
-          <Route path="/promocao/:id" element={<Promocao />} />
-          <Route path="/favoritos" element={<Favoritos />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route path="estabelecimentos" element={<DashboardEstabelecimentos />} />
-            <Route path="estabelecimentos/:id/edit" element={<DashboardEstabelecimentoEdit />} />
-            <Route path="produtos" element={<DashboardProdutos />} />
-            <Route path="promocoes" element={<DashboardPromocoes />} />
-          </Route>
-        </Routes>
-      </main>
-      <Footer />
-    </div>
+    <PoloProvider>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/estabelecimentos" element={<Estabelecimentos />} />
+            <Route path="/estabelecimento/:id" element={<Estabelecimento />} />
+            <Route path="/produtos" element={<Produtos />} />
+            <Route path="/produto/:id" element={<Produto />} />
+            <Route path="/produto/detalhe/:id" element={<ProdutoDetalhe />} />
+            <Route path="/promocoes" element={<Promocoes />} />
+            <Route path="/promocao/:id" element={<Promocao />} />
+            <Route path="/favoritos" element={<Favoritos />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={<DashboardLayout />}>
+              <Route path="estabelecimentos" element={<DashboardEstabelecimentos />} />
+              <Route path="estabelecimentos/:id/edit" element={<DashboardEstabelecimentoEdit />} />
+              <Route path="produtos" element={<DashboardProdutos />} />
+              <Route path="promocoes" element={<DashboardPromocoes />} />
+            </Route>
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </PoloProvider>
   );
 }
 

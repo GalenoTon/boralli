@@ -10,10 +10,14 @@ import {
   ShoppingBag,
   User,
   LogIn,
+  ChevronDown
 } from 'lucide-react';
+import { polosTuristicos } from '../mocks/estabelecimentos';
+import { usePolo } from '../contexts/PoloContext';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const { poloSelecionado, setPoloSelecionado } = usePolo();
   const location = useLocation();
 
   useEffect(() => {
@@ -53,10 +57,30 @@ export default function Header() {
           : 'bg-white/80 backdrop-blur-sm border-b border-transparent'
       }`}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <div className="flex items-center h-16 gap-6">
+            {/* Logo */}
+            <Link to="/" className="text-2xl pl-4 font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent flex-shrink-0">
               Boralli
             </Link>
+
+            {/* Select de Polos */}
+            <div className="relative w-48">
+              <select
+                value={poloSelecionado}
+                onChange={(e) => setPoloSelecionado(e.target.value)}
+                className="w-full appearance-none bg-white/50 border border-gray-200 text-gray-900 py-2 px-4 pr-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all cursor-pointer text-sm"
+              >
+                <option value="todos">Todos os Polos</option>
+                {polosTuristicos.map((polo) => (
+                  <option key={polo.id} value={polo.id}>
+                    {polo.nome}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <ChevronDown className="w-4 h-4 text-gray-400" />
+              </div>
+            </div>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-6">
@@ -77,7 +101,7 @@ export default function Header() {
             </nav>
 
             {/* Desktop Auth Links */}
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-4 ml-auto">
               <Link
                 to="/login"
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 hover:border-purple-200 hover:bg-purple-50 text-gray-700"
